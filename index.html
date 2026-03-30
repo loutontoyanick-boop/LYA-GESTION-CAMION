@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LYA TRANSPORT — Gestion Camion Marchandise</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<style>
+:root{--bg:#0B1219;--bg2:#121E2B;--bg3:#182636;--bg4:#1E3045;--acc:#F5A623;--accG:rgba(245,166,35,.15);--accD:#D4901E;--grn:#34D399;--grnB:rgba(52,211,153,.12);--red:#F87171;--redB:rgba(248,113,113,.12);--blu:#60A5FA;--bluB:rgba(96,165,250,.12);--pur:#A78BFA;--purB:rgba(167,139,250,.12);--t1:#E8EDF2;--t2:#8A9BB5;--t3:#5A6F8A;--brd:rgba(255,255,255,.06);--brdA:rgba(245,166,35,.3);--shd:0 4px 24px rgba(0,0,0,.3);--r:14px;--rs:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--bg2);border-right:1px solid var(--brd);display:flex;flex-direction:column;z-index:100;transition:transform .3s}
+.sb-hd{padding:20px 16px;border-bottom:1px solid var(--brd)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-i{width:40px;height:40px;background:linear-gradient(135deg,var(--acc),var(--accD));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(245,166,35,.25)}
+.logo-t{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--acc),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-s{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:2px}
+.nav{flex:1;padding:8px;overflow-y:auto}
+.nav-sec{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);padding:14px 12px 6px}
+.nv{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;transition:all .2s;position:relative}
+.nv:hover{background:rgba(255,255,255,.04);color:var(--t1)}
+.nv.active{background:var(--accG);color:var(--acc)}
+.nv.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--acc);border-radius:0 4px 4px 0}
+.nv-ic{font-size:16px;width:22px;text-align:center}
+.nv-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px}
+.sb-ft{padding:12px 16px;border-top:1px solid var(--brd);font-size:10px;color:var(--t3);text-align:center}
+.sb-admin{padding:12px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;gap:10px}
+.sb-admin-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--accD));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000}
+.sb-admin-info .name{font-size:12px;font-weight:700;color:var(--t1)}.sb-admin-info .role{font-size:10px;color:var(--acc)}
+
+.main{margin-left:260px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(11,18,25,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--brd);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.tb-l{display:flex;align-items:center;gap:14px}
+.menu-tog{display:none;background:none;border:none;color:var(--t1);font-size:22px;cursor:pointer}
+.pg-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+.tb-r{display:flex;align-items:center;gap:12px}
+.tb-date{font-size:12px;color:var(--t2);background:var(--bg3);padding:7px 14px;border-radius:var(--rs)}
+.cnt{padding:24px 28px}
+
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:all .3s}
+.sc:hover{border-color:var(--brdA);transform:translateY(-2px);box-shadow:var(--shd)}
+.sc-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.sc-ic.o{background:var(--accG)}.sc-ic.g{background:var(--grnB)}.sc-ic.b{background:var(--bluB)}.sc-ic.p{background:var(--purB)}
+.sc-lb{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.sc-vl{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.sc-sub{font-size:11px;color:var(--t2);margin-top:3px}
+
+.card{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.card-h{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:8px}
+.card-t{font-size:15px;font-weight:700}
+.card-b{padding:0}
+table{width:100%;border-collapse:collapse}
+thead th{padding:12px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);font-weight:600;border-bottom:1px solid var(--brd);white-space:nowrap}
+tbody td{padding:11px 16px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--brd);white-space:nowrap}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr:last-child td{border-bottom:none}
+.bdg{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.bdg-g{background:var(--grnB);color:var(--grn)}.bdg-o{background:var(--accG);color:var(--acc)}.bdg-r{background:var(--redB);color:var(--red)}.bdg-b{background:var(--bluB);color:var(--blu)}.bdg-p{background:var(--purB);color:var(--pur)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-p{background:linear-gradient(135deg,var(--acc),var(--accD));color:#000;box-shadow:0 4px 16px rgba(245,166,35,.25)}
+.btn-p:hover{transform:translateY(-1px)}
+.btn-g{background:rgba(255,255,255,.05);color:var(--t2);border:1px solid var(--brd)}
+.btn-g:hover{background:rgba(255,255,255,.08);color:var(--t1)}
+.btn-d{background:var(--redB);color:var(--red)}.btn-d:hover{background:rgba(248,113,113,.2)}
+.btn-s{padding:6px 12px;font-size:11px}
+
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center}
+.mo.active{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);width:95%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:mIn .3s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mo-h{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.mo-t{font-size:16px;font-weight:700}.mo-x{background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer}
+.mo-b{padding:20px}.mo-f{padding:14px 20px;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;gap:10px}
+.fg{margin-bottom:14px}.fl{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.fi,.fs,.ft{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);color:var(--t1);font-family:inherit;font-size:13px;transition:border-color .2s}
+.fi:focus,.fs:focus,.ft:focus{outline:none;border-color:var(--acc)}
+.fs{appearance:none;cursor:pointer}.ft{resize:vertical;min-height:60px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.page{display:none}.page.active{display:block}
+.ab{display:flex;gap:5px}
+.abtn{width:28px;height:28px;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(255,255,255,.04);color:var(--t2);transition:all .2s}
+.abtn:hover{background:rgba(255,255,255,.08);color:var(--t1)}
+.abtn.del:hover{background:var(--redB);color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--t3)}.empty .eic{font-size:40px;margin-bottom:12px}.empty p{font-size:13px}
+.smg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
+.smb{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:14px;text-align:center}
+.smb .sl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}.smb .sv{font-size:20px;font-weight:700;margin-top:3px}
+.tb{display:inline-flex;gap:3px;padding:3px;background:var(--bg);border-radius:var(--rs);margin-bottom:18px}
+.tbtn{padding:7px 16px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn.active{background:var(--acc);color:#000}
+
+/* GPS */
+.gps-display{background:linear-gradient(145deg,#0D1820,var(--bg2));border:2px solid var(--brdA);border-radius:20px;padding:32px 24px;text-align:center;position:relative;overflow:hidden;margin-bottom:20px}
+.gps-ring{width:180px;height:180px;margin:0 auto 12px;position:relative}
+.gps-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.gps-ring .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gps-spd{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1}
+.gps-km{font-size:40px;font-weight:800;color:var(--acc);letter-spacing:-1px;line-height:1}
+.gps-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.gps-mi{background:rgba(255,255,255,.03);border-radius:10px;padding:12px 8px}
+.gps-mi .v{font-size:18px;font-weight:700}.gps-mi .l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.gps-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.gps-dot.off{background:var(--t3)}.gps-dot.on{background:var(--grn);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.gbtn{padding:12px 32px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+.gbtn-go{background:linear-gradient(135deg,var(--grn),#059669);color:#fff;box-shadow:0 4px 20px rgba(52,211,153,.3)}
+.gbtn-stop{background:linear-gradient(135deg,var(--red),#DC2626);color:#fff;box-shadow:0 4px 20px rgba(248,113,113,.3)}
+.gbtn-pause{background:linear-gradient(135deg,var(--acc),var(--accD));color:#000;box-shadow:0 4px 20px rgba(245,166,35,.3)}
+.gbtn:hover{transform:translateY(-2px)}
+
+/* AI Chat */
+.ai-container{display:flex;flex-direction:column;height:calc(100vh - 140px);max-height:700px}
+.ai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ai-msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6;animation:mIn .3s ease}
+.ai-msg.user{align-self:flex-end;background:var(--acc);color:#000;border-bottom-right-radius:4px}
+.ai-msg.ai{align-self:flex-start;background:var(--bg);border:1px solid var(--brd);border-bottom-left-radius:4px}
+.ai-msg.ai .sender{font-size:10px;font-weight:700;color:var(--acc);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.ai-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--brd);background:var(--bg2)}
+.ai-input{flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--brd);border-radius:20px;color:var(--t1);font-family:inherit;font-size:13px;outline:none}
+.ai-input:focus{border-color:var(--acc)}
+.ai-send{width:40px;height:40px;border-radius:50%;background:var(--acc);border:none;color:#000;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* Camera */
+.cam-preview{width:100%;max-width:400px;border-radius:var(--r);overflow:hidden;margin:0 auto 16px;background:#000;position:relative}
+.cam-preview video,.cam-preview canvas,.cam-preview img{width:100%;display:block}
+.cam-btn{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+
+/* Photo gallery */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:12px}
+.photo-thumb{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border .2s}
+.photo-thumb:hover{border-color:var(--acc)}
+
+/* QR/Barcode */
+.code-output{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;background:white;border-radius:var(--r);margin:12px 0}
+.code-output canvas,.code-output svg,.code-output img{max-width:200px}
+
+/* Tags */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg);border:1px solid var(--brd);border-radius:20px;font-size:11px;color:var(--t2)}
+.tag .tag-x{cursor:pointer;color:var(--red);font-weight:700}
+
+/* Fuel bar */
+.fuel-bg{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:6px}
+.fuel-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--acc),var(--grn));transition:width .5s}
+
+/* Search */
+.search-box{display:flex;gap:8px;margin-bottom:12px}
+.search-input{flex:1;padding:8px 14px;background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);color:var(--t1);font-family:inherit;font-size:13px}
+.search-input:focus{outline:none;border-color:var(--acc)}
+
+/* WhatsApp */
+.wa-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:#25D366;color:#fff;font-size:11px;font-weight:600;border:none;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .2s}
+.wa-btn:hover{background:#1DA851;transform:translateY(-1px)}
+.wa-link{color:#25D366;text-decoration:none;font-weight:600}
+.wa-link:hover{text-decoration:underline}
+
+/* Sync notification */
+.sync-toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--grn);border-radius:var(--r);padding:12px 20px;font-size:12px;color:var(--grn);z-index:300;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:slideUp .4s ease;pointer-events:none}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.sync-toast.hide{animation:slideDown .3s ease forwards}
+@keyframes slideDown{to{opacity:0;transform:translateY(20px)}}
+
+/* GPS offline badge */
+.gps-offline-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(52,211,153,.12);color:var(--grn);border:1px solid rgba(52,211,153,.2)}
+
+/* Login screen */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--bg2);border:1px solid var(--brd);border-radius:20px;padding:40px 36px;width:95%;max-width:420px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:mIn .5s ease}
+.login-logo{width:64px;height:64px;background:linear-gradient(135deg,var(--acc),var(--accD));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(245,166,35,.3)}
+.login-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--acc),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--t3);margin-bottom:28px}
+.login-tabs{display:flex;gap:0;margin-bottom:24px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--brd)}
+.login-tab{flex:1;padding:10px;font-size:13px;font-weight:600;background:var(--bg);color:var(--t3);border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.login-tab.active{background:var(--acc);color:#000}
+.login-error{background:var(--redB);border:1px solid var(--red);border-radius:var(--rs);padding:8px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+.login-role-info{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);padding:12px;margin-top:16px;font-size:11px;color:var(--t3);line-height:1.6;text-align:left}
+
+/* Role badge in topbar */
+.role-badge{font-size:9px;padding:3px 10px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+.role-badge.admin-role{background:var(--accG);color:var(--acc)}
+.role-badge.driver-role{background:var(--bluB);color:var(--blu)}
+
+/* Locked overlay for driver */
+.locked-overlay{position:relative}
+.locked-overlay::after{content:'🔒 Accès Administrateur requis';position:absolute;inset:0;background:rgba(11,18,25,.85);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--acc);font-weight:600;border-radius:var(--r);z-index:10;backdrop-filter:blur(4px)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .4s ease forwards;opacity:0}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
+
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.menu-tog{display:block}.cnt{padding:16px 12px}.topbar{padding:12px}.sg{grid-template-columns:1fr 1fr}.fr{grid-template-columns:1fr}.hm{display:none}}
+@media(max-width:480px){.sg{grid-template-columns:1fr}.gps-ring{width:140px;height:140px}.gps-spd{font-size:40px}.gps-km{font-size:32px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🚛</div>
+    <div class="login-title">LYA TRANSPORT</div>
+    <div class="login-sub">Brazzaville • Congo 🇨🇬</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('admin')" id="ltab-admin">👑 Administrateur</button>
+      <button class="login-tab" onclick="switchLoginTab('chauffeur')" id="ltab-chauffeur">🚛 Chauffeur</button>
+    </div>
+    <div class="login-error" id="login-error">Mot de passe incorrect</div>
+    <div id="login-form">
+      <div class="fg"><label class="fl">Mot de passe</label><input class="fi" type="password" id="login-pwd" placeholder="Entrez votre mot de passe" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-p" style="width:100%;justify-content:center;padding:14px;font-size:15px" onclick="doLogin()">🔓 Se connecter</button>
+    </div>
+    <div class="login-role-info" id="login-role-info">
+      <b style="color:var(--acc)">👑 Administrateur:</b> Accès complet — Modifier, ajouter, supprimer tout. Gestion équipage, finances, paramètres, Firebase cloud.<br><br>
+      <b style="color:var(--blu)">🚛 Chauffeur:</b> Consultation + GPS + Dépenses. Peut voir les trajets, utiliser le compteur GPS, ajouter des dépenses et prendre des photos. Ne peut pas modifier les clients, l'équipage ou les paramètres.
+    </div>
+  </div>
+</div>
+
+<aside class="sidebar" id="sidebar" style="display:none">
+  <div class="sb-hd">
+    <div class="logo">
+      <div class="logo-i">🚛</div>
+      <div><div class="logo-t">LYA TRANSPORT</div><div class="logo-s">Brazzaville • Congo</div></div>
+    </div>
+  </div>
+  <nav class="nav" id="nav-menu"></nav>
+  <div class="sb-admin">
+    <div class="sb-admin-av">YL</div>
+    <div class="sb-admin-info"><div class="name" id="admin-name">Yanick Loutonto</div><div class="role">Administrateur en Chef</div></div>
+  </div>
+  <div class="sb-ft">LYA TRANSPORT v4.0 — Brazzaville 🇨🇬</div>
+</aside>
+
+<div class="main" style="display:none">
+  <header class="topbar">
+    <div class="tb-l"><button class="menu-tog" id="menuTog">☰</button><h1 class="pg-title" id="pgTitle">Tableau de bord</h1></div>
+    <div class="tb-r"><span class="role-badge" id="role-badge"></span><div id="cloud-status" style="font-size:10px;padding:5px 12px;border-radius:20px;border:1px solid var(--brd);background:var(--bg3);cursor:pointer" onclick="goTo('admin')">📴 Mode hors-ligne</div><div class="tb-date" id="curDate"></div><button class="btn btn-g btn-s" onclick="doLogout()" title="Déconnexion" style="padding:5px 10px">🚪</button></div>
+  </header>
+  <div class="cnt" id="app-content"></div>
+</div>
+
+<div class="mo" id="modal-overlay"><div class="modal" id="modal-content"></div></div>
+
+<script>
+// ========== CONGO CITIES ==========
+const VILLES_CONGO_DEFAULT = [
+  "Brazzaville","Pointe-Noire","Dolisie","Nkayi","Ouesso","Impfondo","Madingou","Owando",
+  "Sibiti","Kinkala","Gamboma","Mossendjo","Kindamba","Loandjili","Ewo","Djambala",
+  "Makoua","Boundji","Zanaga","Pokola","Sembé","Souanké","Betou","Pikounda",
+  "Mindouli","Boko","Mouyondzi","Loudima","Kibangou","Kayes","Komono","Bambama",
+  "Banda","Kellé","Mbomo","Okoyo","Abala","Allembé","Makotimpoko","Mpouya",
+  "Lékana","Mbon","Ngabé","Ignié","Mayama","Vindza","Tsiaki","Missafou",
+  "Mbinda","Nyanga","Mvouti","Kimongo","Loango","Hinda","Madingo-Kayes","Nzambi",
+  "Mfouati","Loutété","Yamba","Pangala","Ngoko","Mokeko","Dongou","Enyellé",
+  "Épéna","Boyélé","Ntokou","Mossaka","Loukolélé","Bokosongo"
+];
+
+// ========== MARCHANDISES DEFAULT ==========
+const MARCHANDISES_DEFAULT = [
+  {nom:"Ciment",categorie:"Construction",unite:"Sac (50kg)",dangereux:false},
+  {nom:"Bois",categorie:"Construction",unite:"m³",dangereux:false},
+  {nom:"Fer à béton",categorie:"Construction",unite:"Barre",dangereux:false},
+  {nom:"Carrelage",categorie:"Construction",unite:"m²",dangereux:false},
+  {nom:"Sable",categorie:"Construction",unite:"Tonne",dangereux:false},
+  {nom:"Gravier",categorie:"Construction",unite:"Tonne",dangereux:false},
+  {nom:"Tôle ondulée",categorie:"Construction",unite:"Pièce",dangereux:false},
+  {nom:"Sucre",categorie:"Alimentaire",unite:"Sac (50kg)",dangereux:false},
+  {nom:"Riz",categorie:"Alimentaire",unite:"Sac (25kg)",dangereux:false},
+  {nom:"Farine",categorie:"Alimentaire",unite:"Sac (50kg)",dangereux:false},
+  {nom:"Huile de palme",categorie:"Alimentaire",unite:"Bidon (25L)",dangereux:false},
+  {nom:"Sel",categorie:"Alimentaire",unite:"Sac (25kg)",dangereux:false},
+  {nom:"Boissons",categorie:"Alimentaire",unite:"Casier",dangereux:false},
+  {nom:"Poisson congelé",categorie:"Alimentaire",unite:"Carton",dangereux:false},
+  {nom:"Carburant",categorie:"Hydrocarbure",unite:"Fût (200L)",dangereux:true},
+  {nom:"Gaz butane",categorie:"Hydrocarbure",unite:"Bouteille",dangereux:true},
+  {nom:"Bitume",categorie:"Hydrocarbure",unite:"Fût",dangereux:true},
+  {nom:"Produits chimiques",categorie:"Chimique",unite:"Fût",dangereux:true},
+  {nom:"Engrais",categorie:"Agriculture",unite:"Sac (50kg)",dangereux:false},
+  {nom:"Meubles",categorie:"Divers",unite:"Pièce",dangereux:false},
+  {nom:"Électroménager",categorie:"Divers",unite:"Carton",dangereux:false},
+  {nom:"Véhicule",categorie:"Divers",unite:"Unité",dangereux:false},
+  {nom:"Conteneur",categorie:"Divers",unite:"20/40 pieds",dangereux:false},
+  {nom:"Matériel médical",categorie:"Santé",unite:"Carton",dangereux:false},
+  {nom:"Médicaments",categorie:"Santé",unite:"Carton",dangereux:false}
+];
+
+// ========== DEPENSES CATEGORIES ==========
+const DEP_CATS = [
+  {id:"carburant",label:"Carburant (Gasoil)",icon:"⛽"},
+  {id:"huile_moteur",label:"Huile moteur",icon:"🛢️"},
+  {id:"huile_boite",label:"Huile boîte/pont",icon:"🛢️"},
+  {id:"pneus",label:"Pneus",icon:"🛞"},
+  {id:"freins",label:"Plaquettes/Freins",icon:"🔴"},
+  {id:"batterie",label:"Batterie",icon:"🔋"},
+  {id:"courroie",label:"Courroie/Chaîne",icon:"⛓️"},
+  {id:"filtre_air",label:"Filtre à air",icon:"💨"},
+  {id:"filtre_gasoil",label:"Filtre à gasoil",icon:"⛽"},
+  {id:"filtre_huile",label:"Filtre à huile",icon:"🛢️"},
+  {id:"amortisseur",label:"Amortisseurs",icon:"🔧"},
+  {id:"ressort",label:"Ressorts/Lames",icon:"🔧"},
+  {id:"embrayage",label:"Embrayage",icon:"⚙️"},
+  {id:"demarreur",label:"Démarreur",icon:"🔑"},
+  {id:"alternateur",label:"Alternateur",icon:"⚡"},
+  {id:"radiateur",label:"Radiateur",icon:"🌡️"},
+  {id:"turbo",label:"Turbo",icon:"💨"},
+  {id:"injecteur",label:"Injecteurs",icon:"💉"},
+  {id:"echappement",label:"Échappement",icon:"💭"},
+  {id:"direction",label:"Direction/Biellette",icon:"🎯"},
+  {id:"phare",label:"Phares/Éclairage",icon:"💡"},
+  {id:"essuie_glace",label:"Essuie-glaces",icon:"🌧️"},
+  {id:"vitre",label:"Vitre/Pare-brise",icon:"🪟"},
+  {id:"carrosserie",label:"Carrosserie/Benne",icon:"🛠️"},
+  {id:"peage",label:"Péage/Barrière",icon:"🛣️"},
+  {id:"police",label:"Police/Contrôle routier",icon:"👮"},
+  {id:"douane",label:"Douane",icon:"🏛️"},
+  {id:"parking",label:"Stationnement/Parking",icon:"🅿️"},
+  {id:"lavage",label:"Lavage camion",icon:"🚿"},
+  {id:"salaire_chauffeur",label:"Salaire chauffeur",icon:"💵"},
+  {id:"prime",label:"Prime/Bonus",icon:"🎁"},
+  {id:"nourriture",label:"Nourriture/Route",icon:"🍴"},
+  {id:"hebergement",label:"Hébergement/Nuit",icon:"🏨"},
+  {id:"communication",label:"Communication/Crédit",icon:"📱"},
+  {id:"assurance",label:"Assurance véhicule",icon:"📋"},
+  {id:"vignette",label:"Vignette/Taxe annuelle",icon:"📜"},
+  {id:"controle_tech",label:"Contrôle technique",icon:"✅"},
+  {id:"patente",label:"Patente/Licence transport",icon:"📄"},
+  {id:"taxe_route",label:"Taxe communale/Route",icon:"🏛️"},
+  {id:"remorquage",label:"Remorquage/Dépannage",icon:"🆘"},
+  {id:"autre",label:"Autre dépense",icon:"📦"}
+];
+
+// ========== DATA STORE (DUAL MODE: LOCAL + FIREBASE CLOUD) ==========
+const DB='lya_transport_v3';
+const FIREBASE_CONFIG_KEY='lya_firebase_config';
+
+// --- Local storage ---
+function ldLocal(){const r=localStorage.getItem(DB);if(r){const d=JSON.parse(r);if(!d.villes)d.villes=[...VILLES_CONGO_DEFAULT];if(!d.marchandises)d.marchandises=MARCHANDISES_DEFAULT.map((m,i)=>({id:'m'+i,...m}));if(!d.gpsTrips)d.gpsTrips=[];if(!d.photos)d.photos=[];if(!d.equipage)d.equipage=[];if(!d.admin)d.admin={nom:'Yanick Loutonto',tel:'+242 06 000 00 00',whatsapp:'',email:'',role:'Administrateur en Chef'};if(!d.liveGPS)d.liveGPS={active:false,lat:0,lng:0,speed:0,dist:0,ts:0};return d}return{trajets:[],depenses:[],chauffeurs:[],clients:[],entretiens:[],gpsTrips:[],photos:[],equipage:[],villes:[...VILLES_CONGO_DEFAULT],marchandises:MARCHANDISES_DEFAULT.map((m,i)=>({id:'m'+i,...m})),camion:{immat:'',marque:'',annee:'',capacite:'',km:0,fuel:0},admin:{nom:'Yanick Loutonto',tel:'+242 06 000 00 00',whatsapp:'',email:'',role:'Administrateur en Chef'},liveGPS:{active:false,lat:0,lng:0,speed:0,dist:0,ts:0}}}
+function svLocal(d){try{localStorage.setItem(DB,JSON.stringify(d))}catch(e){console.warn('localStorage full, cleaning photos...');d.photos=(d.photos||[]).slice(0,5);localStorage.setItem(DB,JSON.stringify(d))}}
+
+// --- Firebase Cloud ---
+let fbDB=null;
+let fbConnected=false;
+let fbRef=null;
+let fbListenerActive=false;
+let fbSyncPaused=false;
+
+function loadFirebaseConfig(){
+  try{const raw=localStorage.getItem(FIREBASE_CONFIG_KEY);return raw?JSON.parse(raw):null}catch(e){return null}
+}
+function saveFirebaseConfig(cfg){localStorage.setItem(FIREBASE_CONFIG_KEY,JSON.stringify(cfg))}
+
+async function initFirebase(config){
+  if(!config)return false;
+  try{
+    // Dynamic import Firebase SDK
+    if(!window.firebase){
+      await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+      await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js');
+    }
+    if(!firebase.apps.length)firebase.initializeApp(config);
+    fbDB=firebase.database();
+    fbRef=fbDB.ref('lya_transport');
+
+    // Connection state
+    fbDB.ref('.info/connected').on('value',snap=>{
+      fbConnected=!!snap.val();
+      updateCloudStatus();
+    });
+
+    // Listen for remote changes (real-time sync)
+    fbRef.on('value',snap=>{
+      if(fbSyncPaused)return;
+      const remote=snap.val();
+      if(remote&&remote._ts){
+        const localTs=D._ts||0;
+        if(remote._ts>localTs){
+          // Remote is newer — merge
+          fbSyncPaused=true;
+          Object.keys(remote).forEach(k=>{if(k!=='_ts'&&k!=='liveGPS')D[k]=remote[k]});
+          D._ts=remote._ts;
+          svLocal(D);
+          showSync('☁️ Données reçues du cloud');
+          if(curPage)renderPage(curPage);
+          fbSyncPaused=false;
+        }
+      }
+    });
+
+    // Listen for live GPS separately (high frequency)
+    fbRef.child('liveGPS').on('value',snap=>{
+      const g=snap.val();
+      if(g)D.liveGPS=g;
+      // Update live tracker on dashboard if visible
+      const el=document.getElementById('live-gps-card');
+      if(el&&g)updateLiveGPSCard(g);
+    });
+
+    fbListenerActive=true;
+    fbConnected=true;
+    updateCloudStatus();
+    showSync('☁️ Firebase connecté — Sync temps réel activé');
+
+    // Push current data to cloud
+    pushToCloud();
+    return true;
+  }catch(e){
+    console.error('Firebase init error:',e);
+    showSync('❌ Erreur Firebase: '+e.message);
+    return false;
+  }
+}
+
+function loadScript(url){
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=reject;
+    document.head.appendChild(s);
+  });
+}
+
+function pushToCloud(){
+  if(!fbRef||!fbConnected||fbSyncPaused)return;
+  fbSyncPaused=true;
+  const data={...D,_ts:Date.now()};
+  // Don't push large photos to cloud
+  const cloudData={...data};
+  cloudData.photos=(cloudData.photos||[]).map(p=>({...p,data:p.data?p.data.substring(0,100)+'...':''}));
+  fbRef.set(cloudData).then(()=>{fbSyncPaused=false}).catch(e=>{fbSyncPaused=false;console.error('Push error:',e)});
+}
+
+function pushLiveGPS(gpsData){
+  if(!fbRef||!fbConnected)return;
+  fbRef.child('liveGPS').set(gpsData);
+}
+
+function updateCloudStatus(){
+  const el=document.getElementById('cloud-status');
+  if(!el)return;
+  if(fbConnected){
+    el.innerHTML='<span style="color:var(--grn)">☁️ Cloud connecté</span>';
+    el.style.background='var(--grnB)';el.style.borderColor='var(--grn)';
+  }else{
+    el.innerHTML='<span style="color:var(--t3)">📴 Mode hors-ligne</span>';
+    el.style.background='var(--bg3)';el.style.borderColor='var(--brd)';
+  }
+}
+
+// --- Unified data layer ---
+function ld(){return ldLocal()}
+function sv(d){
+  svLocal(d);
+  // Debounced cloud push
+  clearTimeout(sv._timer);
+  sv._timer=setTimeout(()=>pushToCloud(),1500);
+}
+sv._timer=null;
+let D=ld();
+
+// ========== AUTHENTICATION & ROLES ==========
+const AUTH_KEY='lya_auth_session';
+const PWD_KEY='lya_passwords';
+
+let currentRole=null; // 'admin' or 'chauffeur'
+let loginTab='admin';
+
+// Default passwords (stored in localStorage, admin can change them)
+function loadPasswords(){
+  try{const raw=localStorage.getItem(PWD_KEY);return raw?JSON.parse(raw):{admin:'lya2024',chauffeur:'camion'}}
+  catch(e){return{admin:'lya2024',chauffeur:'camion'}}
+}
+function savePasswords(p){localStorage.setItem(PWD_KEY,JSON.stringify(p))}
+
+function loadSession(){
+  try{const raw=localStorage.getItem(AUTH_KEY);if(!raw)return null;const s=JSON.parse(raw);if(Date.now()-s.ts>86400000)return null;return s.role}catch(e){return null} // 24h expiry
+}
+function saveSession(role){localStorage.setItem(AUTH_KEY,JSON.stringify({role,ts:Date.now()}))}
+function clearSession(){localStorage.removeItem(AUTH_KEY)}
+
+function switchLoginTab(tab){
+  loginTab=tab;
+  document.getElementById('ltab-admin').classList.toggle('active',tab==='admin');
+  document.getElementById('ltab-chauffeur').classList.toggle('active',tab==='chauffeur');
+  document.getElementById('login-error').style.display='none';
+  document.getElementById('login-pwd').value='';
+  document.getElementById('login-pwd').focus();
+  document.getElementById('login-role-info').innerHTML=tab==='admin'
+    ?'<b style="color:var(--acc)">👑 Administrateur:</b> Accès complet à toutes les fonctionnalités. Modifier, ajouter, supprimer clients, chauffeurs, équipage, marchandises, paramètres, Firebase cloud et mots de passe.'
+    :'<b style="color:var(--blu)">🚛 Chauffeur:</b> Consultation des trajets, compteur GPS, ajout de dépenses de route, appareil photo et IA Assistant. Pas d\'accès aux modifications de clients, équipage, paramètres ou finances globales.';
+}
+
+function doLogin(){
+  const pwd=document.getElementById('login-pwd').value;
+  const passwords=loadPasswords();
+  if(loginTab==='admin'&&pwd===passwords.admin){
+    currentRole='admin';saveSession('admin');enterApp();
+  }else if(loginTab==='chauffeur'&&pwd===passwords.chauffeur){
+    currentRole='chauffeur';saveSession('chauffeur');enterApp();
+  }else{
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-pwd').value='';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+function doLogout(){
+  if(!confirm('Se déconnecter?'))return;
+  currentRole=null;clearSession();
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.querySelector('.main').style.display='none';
+  document.getElementById('login-pwd').value='';
+  document.getElementById('login-error').style.display='none';
+}
+
+function enterApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('sidebar').style.display='flex';
+  document.querySelector('.main').style.display='block';
+
+  // Update role badge
+  const rb=document.getElementById('role-badge');
+  if(currentRole==='admin'){rb.textContent='👑 ADMIN';rb.className='role-badge admin-role'}
+  else{rb.textContent='🚛 CHAUFFEUR';rb.className='role-badge driver-role'}
+
+  // Update admin name in sidebar
+  document.getElementById('admin-name').textContent=isAdmin()?D.admin.nom:(D.chauffeurs.length?D.chauffeurs[0].nom:'Chauffeur');
+  document.querySelector('.sb-admin-info .role').textContent=isAdmin()?'Administrateur en Chef':'Chauffeur';
+  document.querySelector('.sb-admin-av').textContent=isAdmin()?'YL':'CH';
+
+  buildNav();
+  goTo('dashboard');
+}
+
+function isAdmin(){return currentRole==='admin'}
+function isDriver(){return currentRole==='chauffeur'}
+
+// Pages accessible by chauffeur (read-only or limited)
+const DRIVER_PAGES=['dashboard','trajets','compteur','depenses','camera','ia'];
+const DRIVER_CAN_ADD=['depenses','camera']; // Chauffeur can only add these
+
+function canAccess(pageId){
+  if(isAdmin())return true;
+  return DRIVER_PAGES.includes(pageId);
+}
+
+function canEdit(){return isAdmin()}
+function canAdd(pageId){
+  if(isAdmin())return true;
+  return DRIVER_CAN_ADD.includes(pageId);
+}
+function canDelete(){return isAdmin()}
+
+function fmt(n){return Number(n||0).toLocaleString('fr-FR')+' FCFA'}
+function fN(n){return Number(n||0).toLocaleString('fr-FR')}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5)}
+function td(){return new Date().toISOString().split('T')[0]}
+function gCN(id){const c=D.clients.find(x=>x.id===id);return c?c.nom:'—'}
+function gChN(id){const c=D.chauffeurs.find(x=>x.id===id);return c?c.nom:'—'}
+function gMN(id){const m=D.marchandises.find(x=>x.id===id);return m?m.nom:'—'}
+function villeOpts(){return D.villes.sort().map(v=>`<option value="${v}">${v}</option>`).join('')}
+function marchandiseOpts(){return D.marchandises.map(m=>`<option value="${m.id}">${m.nom} (${m.unite})</option>`).join('')}
+function clientOpts(){return D.clients.map(c=>`<option value="${c.id}">${c.nom}</option>`).join('')}
+function chauffeurOpts(){return D.chauffeurs.map(c=>`<option value="${c.id}">${c.nom}</option>`).join('')}
+function depCatOpts(){return DEP_CATS.map(c=>`<option value="${c.id}">${c.icon} ${c.label}</option>`).join('')}
+function depCatLabel(id){const c=DEP_CATS.find(x=>x.id===id);return c?`${c.icon} ${c.label}`:'📦 '+id}
+function fmtDur(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?`${h}h${String(m).padStart(2,'0')}min`:m>0?`${m}min${String(sec).padStart(2,'0')}s`:`${sec}s`}
+
+const STATUT={en_cours:{l:'En cours',c:'bdg-o'},livre:{l:'Livré',c:'bdg-g'},annule:{l:'Annulé',c:'bdg-r'}};
+const CH_STAT={disponible:{l:'Disponible',c:'bdg-g'},en_mission:{l:'En mission',c:'bdg-o'},repos:{l:'Repos',c:'bdg-b'},suspendu:{l:'Suspendu',c:'bdg-r'}};
+
+// ========== WHATSAPP HELPERS ==========
+function waNum(tel){if(!tel)return '';return tel.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')}
+function waLink(tel,msg){const n=waNum(tel);if(!n)return '#';return `https://wa.me/${n}${msg?'?text='+encodeURIComponent(msg):''}`}
+function waBtnHTML(tel,label,msg){const n=waNum(tel);if(!n)return '';return `<a href="${waLink(tel,msg)}" target="_blank" class="wa-btn">💬 ${label||'WhatsApp'}</a>`}
+function waContactHTML(tel){if(!tel)return '—';return `${tel} <a href="${waLink(tel)}" target="_blank" class="wa-btn" style="margin-left:4px">💬</a>`}
+
+// ========== SYNC SYSTEM ==========
+let syncTimer=null;
+function showSync(msg){
+  const old=document.getElementById('sync-toast');if(old)old.remove();
+  const div=document.createElement('div');div.id='sync-toast';div.className='sync-toast';
+  div.innerHTML=`🔄 ${msg}`;document.body.appendChild(div);
+  setTimeout(()=>{div.classList.add('hide');setTimeout(()=>div.remove(),400)},2200);
+}
+
+function syncAll(source){
+  sv(D);
+  // Auto-update camion km from GPS + trajets
+  const totalKmTrajets=D.trajets.reduce((s,t)=>s+(t.distance||0),0);
+  const totalKmGPS=(D.gpsTrips||[]).reduce((s,t)=>s+(t.distance||0),0);
+  const maxKm=Math.max(D.camion.km||0,totalKmTrajets,totalKmGPS);
+  if(maxKm>D.camion.km){D.camion.km=Math.round(maxKm);sv(D)}
+
+  // Auto-mark chauffeur en_mission if has active trajet
+  D.chauffeurs.forEach(ch=>{
+    const activeT=D.trajets.find(t=>t.chauffeurId===ch.id&&t.statut==='en_cours');
+    if(activeT&&ch.statut==='disponible'){ch.statut='en_mission';sv(D)}
+    if(!activeT&&ch.statut==='en_mission'){ch.statut='disponible';sv(D)}
+  });
+
+  if(source)showSync(`Synchronisé depuis ${source}`);
+}
+
+// ========== GPS OFFLINE AUTOSAVE ==========
+const GPS_AUTOSAVE_KEY='lya_gps_autosave';
+function gpsAutoSave(){
+  if(!gps.active)return;
+  const data={dist:gps.dist,max:gps.max,start:gps.start,pausedMs:gps.pausedMs,paused:gps.paused,pauseT:gps.pauseT,pts:gps.pts.slice(-50),lastLat:gps.last?.lat,lastLng:gps.last?.lng,lastTime:gps.last?.time,savedAt:Date.now()};
+  try{localStorage.setItem(GPS_AUTOSAVE_KEY,JSON.stringify(data))}catch(e){}
+}
+
+function gpsAutoRestore(){
+  try{
+    const raw=localStorage.getItem(GPS_AUTOSAVE_KEY);
+    if(!raw)return false;
+    const data=JSON.parse(raw);
+    // Only restore if less than 2 hours old
+    if(Date.now()-data.savedAt>7200000){localStorage.removeItem(GPS_AUTOSAVE_KEY);return false}
+    return data;
+  }catch(e){return false}
+}
+
+function gpsClearAutoSave(){try{localStorage.removeItem(GPS_AUTOSAVE_KEY)}catch(e){}}
+
+// ========== LIVE GPS TRACKER (FRANCE → CONGO) ==========
+function renderLiveGPSContent(){
+  const g=D.liveGPS;
+  if(!g||!g.active){
+    return `<div style="text-align:center;padding:20px;color:var(--t3)">
+      <div style="font-size:32px;margin-bottom:8px">📡</div>
+      <p style="font-size:13px">Le camion n'est pas en mouvement actuellement.</p>
+      <p style="font-size:11px;margin-top:4px">Quand le compteur GPS démarre à Brazzaville, sa position s'affiche ici en temps réel.</p>
+      ${!fbConnected?'<p style="margin-top:12px;font-size:11px;color:var(--acc)">⚠️ Connectez Firebase dans Administration pour activer le suivi cloud.</p>':''}
+    </div>`;
+  }
+  const age=Math.floor((Date.now()-g.ts)/1000);
+  const fresh=age<60;
+  return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+    <div class="smb"><div class="sl">Position</div><div class="sv" style="font-size:12px">${g.lat?g.lat.toFixed(4)+'°, '+g.lng.toFixed(4)+'°':'—'}</div></div>
+    <div class="smb"><div class="sl">Vitesse</div><div class="sv" style="color:var(--acc)">${Math.round(g.speed||0)} km/h</div></div>
+    <div class="smb"><div class="sl">Distance</div><div class="sv" style="color:var(--grn)">${(g.dist/1000).toFixed(2)} km</div></div>
+    <div class="smb"><div class="sl">Signal</div><div class="sv" style="font-size:12px;color:${fresh?'var(--grn)':'var(--red)'}">${fresh?'🟢 En direct':'🔴 '+age+'s'}</div></div>
+  </div>
+  <div style="margin-top:10px;text-align:center;font-size:10px;color:var(--t3)">Dernière mise à jour: ${new Date(g.ts).toLocaleTimeString('fr-FR')} — ${age<60?'En temps réel ✅':'Retard '+age+'s'}</div>`;
+}
+
+function updateLiveGPSCard(g){
+  const el=document.getElementById('live-gps-content');
+  if(el)el.innerHTML=renderLiveGPSContent();
+}
+
+// ========== NAVIGATION ==========
+const PAGES=[
+  {id:'dashboard',icon:'📊',label:'Tableau de bord',section:'Principal'},
+  {id:'trajets',icon:'🛣️',label:'Trajets',section:'Principal'},
+  {id:'compteur',icon:'📡',label:'Compteur GPS',section:'Principal'},
+  {id:'marchandises',icon:'📦',label:'Marchandises',section:'Gestion'},
+  {id:'clients',icon:'🏢',label:'Clients',section:'Gestion'},
+  {id:'chauffeurs',icon:'👤',label:'Chauffeurs',section:'Gestion'},
+  {id:'equipage',icon:'👥',label:'Équipage',section:'Gestion'},
+  {id:'camera',icon:'📷',label:'Appareil Photo',section:'Outils'},
+  {id:'scanner',icon:'🔍',label:'Scanner / QR Code',section:'Outils'},
+  {id:'ia',icon:'🤖',label:'IA Assistant',section:'Outils'},
+  {id:'depenses',icon:'💰',label:'Dépenses',section:'Finances'},
+  {id:'camion',icon:'🔧',label:'Camion & Entretien',section:'Finances'},
+  {id:'villes',icon:'🗺️',label:'Villes du Congo',section:'Paramètres'},
+  {id:'admin',icon:'⚙️',label:'Administration',section:'Paramètres'},
+  {id:'guide',icon:'📖',label:'Guide Firebase',section:'Paramètres'},
+  {id:'rapport',icon:'📈',label:'Rapport Financier',section:'Finances'}
+];
+
+function buildNav(){
+  const nav=document.getElementById('nav-menu');
+  let html='',lastSec='';
+  const visiblePages=isAdmin()?PAGES:PAGES.filter(p=>DRIVER_PAGES.includes(p.id));
+  visiblePages.forEach(p=>{
+    if(p.section!==lastSec){html+=`<div class="nav-sec">${p.section}</div>`;lastSec=p.section}
+    html+=`<div class="nv" data-page="${p.id}"><span class="nv-ic">${p.icon}</span>${p.label}</div>`;
+  });
+  nav.innerHTML=html;
+  nav.querySelectorAll('.nv').forEach(n=>n.addEventListener('click',()=>goTo(n.dataset.page)));
+}
+
+let curPage='dashboard';
+function goTo(page){
+  if(!canAccess(page)){showSync('🔒 Accès réservé à l\'administrateur');return}
+  curPage=page;
+  document.querySelectorAll('.nv').forEach(n=>{n.classList.toggle('active',n.dataset.page===page)});
+  const p=PAGES.find(x=>x.id===page);
+  document.getElementById('pgTitle').textContent=p?p.label:page;
+  document.getElementById('sidebar').classList.remove('open');
+  renderPage(page);
+}
+
+document.getElementById('menuTog').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+
+// ========== MODAL ==========
+function openM(title,bodyHTML,footerHTML){
+  document.getElementById('modal-content').innerHTML=`
+    <div class="mo-h"><span class="mo-t">${title}</span><button class="mo-x" onclick="closeM()">×</button></div>
+    <div class="mo-b">${bodyHTML}</div>
+    ${footerHTML?`<div class="mo-f">${footerHTML}</div>`:''}`;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeM(){document.getElementById('modal-overlay').classList.remove('active')}
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeM()});
+
+// ========== RENDER ENGINE ==========
+function renderPage(page){
+  const el=document.getElementById('app-content');
+  const fn={
+    dashboard:renderDashboard,trajets:renderTrajets,compteur:renderCompteur,
+    marchandises:renderMarchandises,clients:renderClients,chauffeurs:renderChauffeurs,
+    equipage:renderEquipage,camera:renderCamera,scanner:renderScanner,ia:renderIA,
+    depenses:renderDepenses,camion:renderCamion,villes:renderVilles,admin:renderAdmin,
+    guide:renderGuide,rapport:renderRapport
+  };
+  if(fn[page])el.innerHTML=fn[page]();
+  if(page==='ia')initAI();
+  if(page==='camera')initCamera();
+  if(page==='compteur')initCompteurUI();
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard(){
+  const now=new Date(),mo=now.getMonth(),yr=now.getFullYear();
+  const tM=D.trajets.filter(t=>{const d=new Date(t.date);return d.getMonth()===mo&&d.getFullYear()===yr});
+  const revM=tM.reduce((s,t)=>s+t.montant,0);
+  const liv=tM.filter(t=>t.statut==='livre').length;
+  const dM=D.depenses.filter(d=>{const dd=new Date(d.date);return dd.getMonth()===mo&&dd.getFullYear()===yr});
+  const carb=dM.filter(d=>d.categorie==='carburant').reduce((s,d)=>s+d.montant,0);
+  const kmM=tM.reduce((s,t)=>s+(t.distance||0),0);
+  const tRev=D.trajets.reduce((s,t)=>s+t.montant,0);
+  const tDep=D.depenses.reduce((s,d)=>s+d.montant,0);
+  const profit=tRev-tDep;
+  const marge=tRev>0?Math.round(profit/tRev*100):0;
+
+  let recents=D.trajets.slice(0,5).map(t=>{
+    const s=STATUT[t.statut]||STATUT.en_cours;
+    return `<tr><td>${t.date}</td><td>${t.depart} → ${t.arrivee}</td><td>${gCN(t.clientId)}</td><td>${t.marchandise||gMN(t.marchandiseId)}</td><td style="font-weight:600">${fmt(t.montant)}</td><td><span class="bdg ${s.c}">${s.l}</span></td></tr>`;
+  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--t3)">Aucun trajet</td></tr>';
+
+  return `
+  ${isDriver()?`<div style="background:var(--bluB);border:1px solid var(--blu);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--blu)">🚛 <b>Bienvenue chauffeur!</b> — Vous pouvez consulter les trajets, utiliser le compteur GPS, ajouter des dépenses de route et prendre des photos. Pour toute modification, contactez l'administrateur.</div>`:''}
+  <div class="sg">
+    <div class="sc anim d1"><div class="sc-ic o">💰</div><div class="sc-lb">Revenus du mois</div><div class="sc-vl">${fmt(revM)}</div><div class="sc-sub">${tM.length} trajets</div></div>
+    <div class="sc anim d2"><div class="sc-ic g">📦</div><div class="sc-lb">Cargaisons livrées</div><div class="sc-vl">${liv}</div><div class="sc-sub">Taux: ${tM.length?Math.round(liv/tM.length*100):0}%</div></div>
+    <div class="sc anim d3"><div class="sc-ic b">⛽</div><div class="sc-lb">Carburant (mois)</div><div class="sc-vl">${fmt(carb)}</div></div>
+    <div class="sc anim d4"><div class="sc-ic p">📍</div><div class="sc-lb">Km parcourus</div><div class="sc-vl">${fN(kmM)} km</div></div>
+  </div>
+  <div class="card anim d3"><div class="card-h"><span class="card-t">🛣️ Derniers trajets</span><button class="btn btn-g btn-s" onclick="goTo('trajets')">Voir tout →</button></div><div class="card-b"><table><thead><tr><th>Date</th><th>Trajet</th><th>Client</th><th>Marchandise</th><th>Montant</th><th>Statut</th></tr></thead><tbody>${recents}</tbody></table></div></div>
+  ${isAdmin()?`<div class="smg anim d4">
+    <div class="smb"><div class="sl">Total Revenus</div><div class="sv" style="color:var(--grn)">${fmt(tRev)}</div></div>
+    <div class="smb"><div class="sl">Total Dépenses</div><div class="sv" style="color:var(--red)">${fmt(tDep)}</div></div>
+    <div class="smb"><div class="sl">Bénéfice Net</div><div class="sv" style="color:var(--acc)">${fmt(profit)}</div></div>
+    <div class="smb"><div class="sl">Marge</div><div class="sv" style="color:var(--blu)">${marge}%</div></div>
+  </div>`:''}
+  ${gps.active?`<div style="background:var(--grnB);border:1px solid var(--grn);border-radius:var(--rs);padding:10px 16px;margin-bottom:16px;font-size:12px;display:flex;align-items:center;gap:8px"><span class="gps-dot on"></span><b style="color:var(--grn)">Compteur GPS actif</b> — ${(gps.dist/1000).toFixed(2)} km parcourus <button class="btn btn-g btn-s" onclick="goTo('compteur')" style="margin-left:auto">Voir →</button></div>`:''}
+  ${D.clients.filter(c=>c.problematique).length?`<div style="background:var(--redB);border:1px solid var(--red);border-radius:var(--rs);padding:10px 16px;margin-bottom:16px;font-size:12px;color:var(--red)">⚠️ <b>${D.clients.filter(c=>c.problematique).length} client(s) problématique(s)</b> — ${D.clients.filter(c=>c.problematique).map(c=>c.nom).join(', ')}</div>`:''}
+  <div class="card anim d4" id="live-gps-card"><div class="card-h"><span class="card-t">📡 Suivi GPS en direct ${fbConnected?'<span class="bdg bdg-g">CLOUD</span>':''}</span><span style="font-size:10px;color:var(--t3)">Depuis la France → Brazzaville</span></div><div class="card-b" style="padding:16px" id="live-gps-content">${renderLiveGPSContent()}</div></div>
+  `;
+}
+
+// ========== TRAJETS ==========
+function renderTrajets(){
+  let rows=D.trajets.map(t=>{
+    const s=STATUT[t.statut]||STATUT.en_cours;
+    return `<tr><td>${t.date}</td><td>${t.depart}</td><td>${t.arrivee}</td><td>${gCN(t.clientId)}</td><td>${t.marchandise||gMN(t.marchandiseId)}</td><td>${t.poids?t.poids+'T':'—'}</td><td>${t.distance?fN(t.distance)+' km':'—'}</td><td style="font-weight:600">${fmt(t.montant)}</td><td><span class="bdg ${s.c}">${s.l}</span></td>${canDelete()?`<td><div class="ab"><button class="abtn del" onclick="delItem('trajets','${t.id}')">🗑</button></div></td>`:''}</tr>`;
+  }).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">Liste des Trajets</span>${isAdmin()?'<button class="btn btn-p btn-s" onclick="modalTrajet()">+ Nouveau Trajet</button>':''}</div><div class="card-b"><table><thead><tr><th>Date</th><th>Départ</th><th>Arrivée</th><th>Client</th><th>Marchandise</th><th>Poids</th><th>Distance</th><th>Montant</th><th>Statut</th>${canDelete()?'<th>Act.</th>':''}</tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty"><div class="eic">🛣️</div><p>Aucun trajet</p></div></td></tr>'}</tbody></table></div></div>`;
+}
+
+function modalTrajet(prefillDist){
+  openM('Nouveau Trajet',`
+    <div class="fr"><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="t-date" value="${td()}"></div>
+    <div class="fg"><label class="fl">Statut</label><select class="fs" id="t-stat"><option value="en_cours">En cours</option><option value="livre">Livré</option><option value="annule">Annulé</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Ville départ</label><select class="fs" id="t-dep"><option value="">—</option>${villeOpts()}</select></div>
+    <div class="fg"><label class="fl">Ville arrivée</label><select class="fs" id="t-arr"><option value="">—</option>${villeOpts()}</select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Client</label><select class="fs" id="t-cli"><option value="">—</option>${clientOpts()}</select></div>
+    <div class="fg"><label class="fl">Marchandise</label><select class="fs" id="t-marc"><option value="">—</option>${marchandiseOpts()}</select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Poids (tonnes)</label><input class="fi" type="number" id="t-poids"></div>
+    <div class="fg"><label class="fl">Distance (km)</label><input class="fi" type="number" id="t-dist" value="${prefillDist||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Montant (FCFA)</label><input class="fi" type="number" id="t-mont"></div>
+    <div class="fg"><label class="fl">Chauffeur</label><select class="fs" id="t-ch"><option value="">—</option>${chauffeurOpts()}</select></div></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="ft" id="t-notes"></textarea></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveTrajet()">Enregistrer</button>`);
+}
+
+function saveTrajet(){
+  const t={id:uid(),date:document.getElementById('t-date').value||td(),depart:document.getElementById('t-dep').value,arrivee:document.getElementById('t-arr').value,clientId:document.getElementById('t-cli').value,marchandiseId:document.getElementById('t-marc').value,poids:parseFloat(document.getElementById('t-poids').value)||0,distance:parseFloat(document.getElementById('t-dist').value)||0,montant:parseFloat(document.getElementById('t-mont').value)||0,chauffeurId:document.getElementById('t-ch').value,statut:document.getElementById('t-stat').value,notes:document.getElementById('t-notes').value};
+  if(!t.depart||!t.arrivee)return alert('Indiquez départ et arrivée');
+  D.trajets.unshift(t);syncAll('Trajets');closeM();renderPage(curPage);
+}
+
+// ========== MARCHANDISES ==========
+function renderMarchandises(){
+  const cats=[...new Set(D.marchandises.map(m=>m.categorie))];
+  let rows=D.marchandises.map(m=>`<tr><td style="font-weight:600">${m.nom}</td><td><span class="bdg bdg-b">${m.categorie}</span></td><td>${m.unite}</td><td>${m.dangereux?'<span class="bdg bdg-r">⚠️ Oui</span>':'<span class="bdg bdg-g">Non</span>'}</td><td><div class="ab"><button class="abtn" onclick="modalEditMarch('${m.id}')">✏️</button><button class="abtn del" onclick="delItem('marchandises','${m.id}')">🗑</button></div></td></tr>`).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">📦 Catalogue des Marchandises (${D.marchandises.length})</span><button class="btn btn-p btn-s" onclick="modalMarch()">+ Ajouter</button></div><div class="card-b"><table><thead><tr><th>Nom</th><th>Catégorie</th><th>Unité</th><th>Dangereux</th><th>Act.</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function modalMarch(){
+  openM('Nouvelle Marchandise',`
+    <div class="fg"><label class="fl">Nom</label><input class="fi" id="mr-nom" placeholder="Ex: Ciment"></div>
+    <div class="fr"><div class="fg"><label class="fl">Catégorie</label><input class="fi" id="mr-cat" placeholder="Ex: Construction" list="mr-cats"><datalist id="mr-cats">${[...new Set(D.marchandises.map(m=>m.categorie))].map(c=>`<option value="${c}">`).join('')}</datalist></div>
+    <div class="fg"><label class="fl">Unité</label><input class="fi" id="mr-unit" placeholder="Ex: Sac (50kg)"></div></div>
+    <div class="fg"><label class="fl">Marchandise dangereuse?</label><select class="fs" id="mr-dang"><option value="0">Non</option><option value="1">⚠️ Oui (Inflammable/Toxique)</option></select></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveMarch()">Enregistrer</button>`);
+}
+
+function saveMarch(){
+  const m={id:uid(),nom:document.getElementById('mr-nom').value,categorie:document.getElementById('mr-cat').value,unite:document.getElementById('mr-unit').value,dangereux:document.getElementById('mr-dang').value==='1'};
+  if(!m.nom)return alert('Nom requis');
+  D.marchandises.push(m);syncAll();closeM();renderPage(curPage);
+}
+
+function modalEditMarch(id){
+  const m=D.marchandises.find(x=>x.id===id);if(!m)return;
+  openM('Modifier Marchandise',`
+    <div class="fg"><label class="fl">Nom</label><input class="fi" id="mr-nom" value="${m.nom}"></div>
+    <div class="fr"><div class="fg"><label class="fl">Catégorie</label><input class="fi" id="mr-cat" value="${m.categorie}"></div>
+    <div class="fg"><label class="fl">Unité</label><input class="fi" id="mr-unit" value="${m.unite}"></div></div>
+    <div class="fg"><label class="fl">Dangereuse?</label><select class="fs" id="mr-dang"><option value="0" ${!m.dangereux?'selected':''}>Non</option><option value="1" ${m.dangereux?'selected':''}>Oui</option></select></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="updateMarch('${id}')">Modifier</button>`);
+}
+
+function updateMarch(id){
+  const m=D.marchandises.find(x=>x.id===id);if(!m)return;
+  m.nom=document.getElementById('mr-nom').value;m.categorie=document.getElementById('mr-cat').value;m.unite=document.getElementById('mr-unit').value;m.dangereux=document.getElementById('mr-dang').value==='1';
+  syncAll();closeM();renderPage(curPage);
+}
+
+// ========== CLIENTS (ENHANCED) ==========
+function renderClients(){
+  let rows=D.clients.map(c=>{
+    const tj=D.trajets.filter(t=>t.clientId===c.id);
+    const tot=tj.reduce((s,t)=>s+t.montant,0);
+    const photos=(D.photos||[]).filter(p=>p.clientId===c.id).length;
+    const probFlag=c.problematique?'<span class="bdg bdg-r" style="margin-left:4px">⚠️</span>':'';
+    return `<tr><td style="font-weight:600">${c.nom}${probFlag}</td><td>${c.type||'—'}</td><td>${waContactHTML(c.tel)}</td><td>${c.whatsapp?waContactHTML(c.whatsapp):waContactHTML(c.tel)}</td><td>${c.ville||'—'}</td><td>${tj.length}</td><td style="font-weight:600;color:var(--grn)">${fmt(tot)}</td><td><div class="ab"><button class="abtn" onclick="viewClient('${c.id}')">👁</button><button class="abtn" onclick="modalEditClient('${c.id}')">✏️</button>${c.tel?`<a class="abtn" href="${waLink(c.whatsapp||c.tel,'Bonjour, ici LYA TRANSPORT.')}" target="_blank" style="color:#25D366;text-decoration:none">💬</a>`:''}<button class="abtn del" onclick="delItem('clients','${c.id}')">🗑</button></div></td></tr>`;
+  }).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">Base Clients (${D.clients.length})</span><button class="btn btn-p btn-s" onclick="modalClient()">+ Ajouter Client</button></div><div class="card-b"><table><thead><tr><th>Nom</th><th>Type</th><th>Tél.</th><th>WhatsApp</th><th>Ville</th><th>Trajets</th><th>Facturé</th><th>Act.</th></tr></thead><tbody>${rows||'<tr><td colspan="8"><div class="empty"><div class="eic">🏢</div><p>Aucun client</p></div></td></tr>'}</tbody></table></div></div>`;
+}
+
+function modalClient(){
+  openM('Nouveau Client — Informations complètes',`
+    <div class="fr"><div class="fg"><label class="fl">Nom / Entreprise</label><input class="fi" id="cl-nom" placeholder="SOCOTRANS SARL"></div>
+    <div class="fg"><label class="fl">Type</label><select class="fs" id="cl-type"><option value="entreprise">Entreprise</option><option value="particulier">Particulier</option><option value="ong">ONG</option><option value="etat">État / Administration</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Téléphone principal</label><input class="fi" id="cl-tel" placeholder="+242 06 XXX XX XX"></div>
+    <div class="fg"><label class="fl">Téléphone secondaire</label><input class="fi" id="cl-tel2" placeholder="+242 05 XXX XX XX"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="cl-wa" placeholder="+242 06 XXX XX XX (numéro WhatsApp)"></div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="cl-email" placeholder="email@example.com"></div></div>
+    <div class="fg"><label class="fl">Ville</label><select class="fs" id="cl-ville"><option value="">—</option>${villeOpts()}</select></div></div>
+    <div class="fg"><label class="fl">Adresse complète</label><input class="fi" id="cl-adresse" placeholder="Quartier, Avenue, N°..."></div>
+    <div class="fr"><div class="fg"><label class="fl">N° RCCM</label><input class="fi" id="cl-rccm" placeholder="Registre commerce"></div>
+    <div class="fg"><label class="fl">N° Impôt / NIF</label><input class="fi" id="cl-nif" placeholder="Numéro fiscal"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Responsable contact</label><input class="fi" id="cl-contact" placeholder="Nom du contact"></div>
+    <div class="fg"><label class="fl">Mode paiement préféré</label><select class="fs" id="cl-paiement"><option value="especes">Espèces</option><option value="virement">Virement bancaire</option><option value="mobile_money">Mobile Money</option><option value="cheque">Chèque</option><option value="credit">Crédit</option></select></div></div>
+    <div class="fg"><label class="fl">Notes / Observations</label><textarea class="ft" id="cl-notes" placeholder="Client fidèle, conditions spéciales..."></textarea></div>
+    <div class="fg"><label class="fl">⚠️ Client problématique?</label><select class="fs" id="cl-prob"><option value="0">Non</option><option value="1">⚠️ Oui — Attention requise</option></select></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveClient()">Enregistrer</button>`);
+}
+
+function saveClient(){
+  const c={id:uid(),nom:document.getElementById('cl-nom').value,type:document.getElementById('cl-type').value,tel:document.getElementById('cl-tel').value,tel2:document.getElementById('cl-tel2').value,whatsapp:document.getElementById('cl-wa').value,email:document.getElementById('cl-email').value,ville:document.getElementById('cl-ville').value,adresse:document.getElementById('cl-adresse').value,rccm:document.getElementById('cl-rccm').value,nif:document.getElementById('cl-nif').value,contact:document.getElementById('cl-contact').value,paiement:document.getElementById('cl-paiement').value,notes:document.getElementById('cl-notes').value,problematique:document.getElementById('cl-prob').value==='1'};
+  if(!c.nom)return alert('Nom requis');D.clients.push(c);syncAll('Clients');closeM();renderPage(curPage);
+}
+
+function modalEditClient(id){
+  const c=D.clients.find(x=>x.id===id);if(!c)return;
+  openM('Modifier Client',`
+    <div class="fr"><div class="fg"><label class="fl">Nom</label><input class="fi" id="cl-nom" value="${c.nom||''}"></div>
+    <div class="fg"><label class="fl">Type</label><select class="fs" id="cl-type"><option value="entreprise" ${c.type==='entreprise'?'selected':''}>Entreprise</option><option value="particulier" ${c.type==='particulier'?'selected':''}>Particulier</option><option value="ong" ${c.type==='ong'?'selected':''}>ONG</option><option value="etat" ${c.type==='etat'?'selected':''}>État</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Tél.</label><input class="fi" id="cl-tel" value="${c.tel||''}"></div><div class="fg"><label class="fl">Tél. 2</label><input class="fi" id="cl-tel2" value="${c.tel2||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="cl-wa" value="${c.whatsapp||''}"></div><div class="fg"><label class="fl">Email</label><input class="fi" id="cl-email" value="${c.email||''}"></div></div>
+    <div class="fg"><label class="fl">Ville</label><select class="fs" id="cl-ville"><option value="">—</option>${villeOpts()}</select></div>
+    <div class="fr"><div class="fg"><label class="fl">RCCM</label><input class="fi" id="cl-rccm" value="${c.rccm||''}"></div><div class="fg"><label class="fl">NIF</label><input class="fi" id="cl-nif" value="${c.nif||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Contact</label><input class="fi" id="cl-contact" value="${c.contact||''}"></div><div class="fg"><label class="fl">Paiement</label><select class="fs" id="cl-paiement"><option value="especes" ${c.paiement==='especes'?'selected':''}>Espèces</option><option value="virement" ${c.paiement==='virement'?'selected':''}>Virement</option><option value="mobile_money" ${c.paiement==='mobile_money'?'selected':''}>Mobile Money</option><option value="cheque" ${c.paiement==='cheque'?'selected':''}>Chèque</option><option value="credit" ${c.paiement==='credit'?'selected':''}>Crédit</option></select></div></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="ft" id="cl-notes">${c.notes||''}</textarea></div>
+    <div class="fg"><label class="fl">Problématique?</label><select class="fs" id="cl-prob"><option value="0" ${!c.problematique?'selected':''}>Non</option><option value="1" ${c.problematique?'selected':''}>Oui</option></select></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="updateClient('${id}')">Modifier</button>`);
+  setTimeout(()=>{if(c.ville)document.getElementById('cl-ville').value=c.ville},50);
+}
+
+function updateClient(id){const c=D.clients.find(x=>x.id===id);if(!c)return;c.nom=document.getElementById('cl-nom').value;c.type=document.getElementById('cl-type').value;c.tel=document.getElementById('cl-tel').value;c.tel2=document.getElementById('cl-tel2').value;c.whatsapp=document.getElementById('cl-wa').value;c.email=document.getElementById('cl-email').value;c.ville=document.getElementById('cl-ville').value;c.adresse=document.getElementById('cl-adresse').value;c.rccm=document.getElementById('cl-rccm').value;c.nif=document.getElementById('cl-nif').value;c.contact=document.getElementById('cl-contact').value;c.paiement=document.getElementById('cl-paiement').value;c.notes=document.getElementById('cl-notes').value;c.problematique=document.getElementById('cl-prob').value==='1';syncAll('Clients');closeM();renderPage(curPage)}
+
+function viewClient(id){
+  const c=D.clients.find(x=>x.id===id);if(!c)return;
+  const tj=D.trajets.filter(t=>t.clientId===id);
+  const tot=tj.reduce((s,t)=>s+t.montant,0);
+  const totalKm=tj.reduce((s,t)=>s+(t.distance||0),0);
+  const photos=(D.photos||[]).filter(p=>p.clientId===id);
+  const marchs=[...new Set(tj.map(t=>t.marchandiseId).filter(Boolean))].map(mid=>gMN(mid));
+  let photosHTML=photos.length?photos.map(p=>`<img src="${p.data}" class="photo-thumb" onclick="viewPhoto('${p.id}')">`).join(''):'<p style="color:var(--t3);font-size:12px">Aucune photo</p>';
+  const waNum2=c.whatsapp||c.tel;
+
+  openM(`👁 Fiche Client: ${c.nom}`,`
+    ${c.problematique?'<div style="background:var(--redB);border:1px solid var(--red);border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--red);font-weight:600">⚠️ CLIENT PROBLÉMATIQUE — Vigilance requise</div>':''}
+    <div class="smg">
+      <div class="smb"><div class="sl">Type</div><div class="sv" style="font-size:14px">${c.type||'—'}</div></div>
+      <div class="smb"><div class="sl">Trajets</div><div class="sv">${tj.length}</div></div>
+      <div class="smb"><div class="sl">Total facturé</div><div class="sv" style="color:var(--grn);font-size:16px">${fmt(tot)}</div></div>
+      <div class="smb"><div class="sl">Km transportés</div><div class="sv" style="font-size:16px">${fN(totalKm)} km</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--t2);line-height:2">
+      <b>📞 Tél:</b> ${waContactHTML(c.tel)} ${c.tel2?' / '+c.tel2:''}<br>
+      <b>💬 WhatsApp:</b> ${waNum2?`${waNum2} ${waBtnHTML(waNum2,'Envoyer message','Bonjour, ici LYA TRANSPORT. Concernant votre colis...')}`:'—'}<br>
+      <b>📧 Email:</b> ${c.email||'—'}<br>
+      <b>📍 Ville:</b> ${c.ville||'—'}<br>
+      <b>🏠 Adresse:</b> ${c.adresse||'—'}<br>
+      <b>📋 RCCM:</b> ${c.rccm||'—'} | <b>NIF:</b> ${c.nif||'—'}<br>
+      <b>👤 Contact:</b> ${c.contact||'—'}<br>
+      <b>💳 Paiement:</b> ${c.paiement||'—'}<br>
+      <b>📝 Notes:</b> ${c.notes||'—'}
+    </div>
+    ${marchs.length?`<h4 style="margin-top:14px;font-size:12px;color:var(--acc)">📦 Marchandises transportées</h4><div class="tags">${marchs.map(m=>`<span class="tag">${m}</span>`).join('')}</div>`:''}
+    <h4 style="margin-top:14px;font-size:12px;color:var(--acc)">📷 Photos associées (${photos.length})</h4>
+    <div class="photo-grid">${photosHTML}</div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      ${waNum2?`<a href="${waLink(waNum2,'Bonjour, ici LYA TRANSPORT. Concernant votre livraison...')}" target="_blank" class="wa-btn" style="padding:8px 16px;font-size:12px">💬 Contacter sur WhatsApp</a>`:''}
+      <button class="btn btn-p btn-s" onclick="closeM();goTo('camera')">📷 Photo pour ce client</button>
+      <button class="btn btn-g btn-s" onclick="closeM();generateClientQR('${id}')">🔳 QR Code</button>
+    </div>`,
+  `<button class="btn btn-g" onclick="closeM()">Fermer</button>`);
+}
+
+function generateClientQR(id){
+  const c=D.clients.find(x=>x.id===id);if(!c)return;
+  goTo('scanner');
+  setTimeout(()=>{
+    document.getElementById('qr-data').value=JSON.stringify({client:c.nom,tel:c.tel,ville:c.ville,id:c.id});
+    generateQR();
+  },200);
+}
+
+// ========== CHAUFFEURS ==========
+function renderChauffeurs(){
+  let rows=D.chauffeurs.map(c=>{
+    const s=CH_STAT[c.statut]||CH_STAT.disponible;
+    const tj=D.trajets.filter(t=>t.chauffeurId===c.id).length;
+    const activeTr=D.trajets.find(t=>t.chauffeurId===c.id&&t.statut==='en_cours');
+    const activeInfo=activeTr?`<span class="bdg bdg-o" style="font-size:9px">${activeTr.depart}→${activeTr.arrivee}</span>`:'';
+    return `<tr><td style="font-weight:600">${c.nom}</td><td>${waContactHTML(c.tel)}</td><td>${c.whatsapp?waContactHTML(c.whatsapp):''}</td><td>${c.permis||'—'}</td><td><span class="bdg ${s.c}">${s.l}</span> ${activeInfo}</td><td>${tj}</td><td><div class="ab"><button class="abtn" onclick="modalEditCh('${c.id}')">✏️</button>${c.tel||c.whatsapp?`<a class="abtn" href="${waLink(c.whatsapp||c.tel,'Bonjour, info LYA TRANSPORT:')}" target="_blank" style="color:#25D366;text-decoration:none">💬</a>`:''}<button class="abtn del" onclick="delItem('chauffeurs','${c.id}')">🗑</button></div></td></tr>`;
+  }).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">Chauffeurs (${D.chauffeurs.length})</span><button class="btn btn-p btn-s" onclick="modalCh()">+ Ajouter</button></div><div class="card-b"><table><thead><tr><th>Nom</th><th>Tél.</th><th>WhatsApp</th><th>Permis</th><th>Statut</th><th>Trajets</th><th>Act.</th></tr></thead><tbody>${rows||'<tr><td colspan="7"><div class="empty"><div class="eic">👤</div><p>Aucun chauffeur</p></div></td></tr>'}</tbody></table></div></div>`;
+}
+
+function modalCh(){
+  openM('Ajouter Chauffeur',`
+    <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="ch-nom"></div>
+    <div class="fr"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ch-tel" placeholder="+242 06 XXX XX XX"></div>
+    <div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="ch-wa" placeholder="+242 06 XXX XX XX"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">N° Permis</label><input class="fi" id="ch-perm"></div>
+    <div class="fg"><label class="fl">Statut</label><select class="fs" id="ch-stat"><option value="disponible">Disponible</option><option value="en_mission">En mission</option><option value="repos">Repos</option><option value="suspendu">Suspendu</option></select></div></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveCh()">Enregistrer</button>`);
+}
+
+function saveCh(){const c={id:uid(),nom:document.getElementById('ch-nom').value,tel:document.getElementById('ch-tel').value,whatsapp:document.getElementById('ch-wa').value,permis:document.getElementById('ch-perm').value,statut:document.getElementById('ch-stat').value};if(!c.nom)return alert('Nom requis');D.chauffeurs.push(c);syncAll('Chauffeurs');closeM();renderPage(curPage)}
+
+function modalEditCh(id){
+  const c=D.chauffeurs.find(x=>x.id===id);if(!c)return;
+  openM('Modifier Chauffeur',`
+    <div class="fg"><label class="fl">Nom</label><input class="fi" id="ch-nom" value="${c.nom}"></div>
+    <div class="fr"><div class="fg"><label class="fl">Tél.</label><input class="fi" id="ch-tel" value="${c.tel||''}"></div><div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="ch-wa" value="${c.whatsapp||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Permis</label><input class="fi" id="ch-perm" value="${c.permis||''}"></div>
+    <div class="fg"><label class="fl">Statut</label><select class="fs" id="ch-stat"><option value="disponible" ${c.statut==='disponible'?'selected':''}>Disponible</option><option value="en_mission" ${c.statut==='en_mission'?'selected':''}>En mission</option><option value="repos" ${c.statut==='repos'?'selected':''}>Repos</option><option value="suspendu" ${c.statut==='suspendu'?'selected':''}>Suspendu</option></select></div></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="updateCh('${id}')">Modifier</button>`);
+}
+
+function updateCh(id){const c=D.chauffeurs.find(x=>x.id===id);if(!c)return;c.nom=document.getElementById('ch-nom').value;c.tel=document.getElementById('ch-tel').value;c.whatsapp=document.getElementById('ch-wa').value;c.permis=document.getElementById('ch-perm').value;c.statut=document.getElementById('ch-stat').value;syncAll('Chauffeurs');closeM();renderPage(curPage)}
+
+// ========== EQUIPAGE ==========
+function renderEquipage(){
+  const members=[{...D.admin,id:'admin',role:'Administrateur en Chef',removable:false},...D.equipage];
+  let rows=members.map(m=>`<tr><td style="font-weight:600">${m.nom}</td><td><span class="bdg ${m.role==='Administrateur en Chef'?'bdg-o':'bdg-b'}">${m.role}</span></td><td>${waContactHTML(m.tel)}</td><td>${m.whatsapp?waContactHTML(m.whatsapp):(m.tel?waContactHTML(m.tel):'—')}</td><td>${m.fonction||'—'}</td><td>${m.removable===false?'<span class="bdg bdg-o">👑 Admin</span>':`<div class="ab"><button class="abtn" onclick="modalEditEquip('${m.id}')">✏️</button>${m.whatsapp||m.tel?`<a class="abtn" href="${waLink(m.whatsapp||m.tel)}" target="_blank" style="color:#25D366;text-decoration:none">💬</a>`:''}<button class="abtn del" onclick="delEquip('${m.id}')">🗑</button></div>`}</td></tr>`).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">👥 Équipage LYA TRANSPORT (${members.length} membres)</span><button class="btn btn-p btn-s" onclick="modalEquip()">+ Ajouter membre</button></div><div class="card-b"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Tél.</th><th>WhatsApp</th><th>Fonction</th><th>Act.</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+  <div class="card"><div class="card-h"><span class="card-t">💬 Envoyer message WhatsApp groupé</span></div><div class="card-b" style="padding:16px">
+    <div class="fg"><label class="fl">Message</label><textarea class="ft" id="wa-group-msg" placeholder="Ex: Réunion demain à 8h au dépôt...">Bonjour équipe LYA TRANSPORT,\n</textarea></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${members.filter(m=>m.tel||m.whatsapp).map(m=>`<a href="${waLink(m.whatsapp||m.tel)}" target="_blank" class="wa-btn">💬 ${m.nom.split(' ')[0]}</a>`).join('')}</div>
+  </div></div>`;
+}
+
+function modalEquip(){
+  openM('Ajouter membre équipage',`
+    <div class="fg"><label class="fl">Nom complet</label><input class="fi" id="eq-nom"></div>
+    <div class="fr"><div class="fg"><label class="fl">Rôle</label><select class="fs" id="eq-role"><option value="Chauffeur">Chauffeur</option><option value="Aide-chauffeur">Aide-chauffeur</option><option value="Mécanicien">Mécanicien</option><option value="Comptable">Comptable</option><option value="Dispatcher">Dispatcher</option><option value="Gestionnaire">Gestionnaire</option><option value="Autre">Autre</option></select></div>
+    <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="eq-tel"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="eq-wa" placeholder="+242 06 XXX XX XX"></div>
+    <div class="fg"><label class="fl">Fonction détaillée</label><input class="fi" id="eq-fonc" placeholder="Ex: Chauffeur longue distance"></div></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveEquip()">Ajouter</button>`);
+}
+
+function saveEquip(){const e={id:uid(),nom:document.getElementById('eq-nom').value,role:document.getElementById('eq-role').value,tel:document.getElementById('eq-tel').value,whatsapp:document.getElementById('eq-wa').value,fonction:document.getElementById('eq-fonc').value};if(!e.nom)return alert('Nom requis');D.equipage.push(e);syncAll('Équipage');closeM();renderPage(curPage)}
+function modalEditEquip(id){const e=D.equipage.find(x=>x.id===id);if(!e)return;openM('Modifier membre',`<div class="fg"><label class="fl">Nom</label><input class="fi" id="eq-nom" value="${e.nom}"></div><div class="fr"><div class="fg"><label class="fl">Rôle</label><input class="fi" id="eq-role" value="${e.role||''}"></div><div class="fg"><label class="fl">Tél.</label><input class="fi" id="eq-tel" value="${e.tel||''}"></div></div><div class="fg"><label class="fl">Fonction</label><input class="fi" id="eq-fonc" value="${e.fonction||''}"></div>`,`<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="updateEquip('${id}')">Modifier</button>`)}
+function updateEquip(id){const e=D.equipage.find(x=>x.id===id);if(!e)return;e.nom=document.getElementById('eq-nom').value;e.role=document.getElementById('eq-role').value;e.tel=document.getElementById('eq-tel').value;e.fonction=document.getElementById('eq-fonc').value;syncAll();closeM();renderPage(curPage)}
+function delEquip(id){if(!confirm('Retirer ce membre?'))return;D.equipage=D.equipage.filter(x=>x.id!==id);syncAll();renderPage(curPage)}
+
+// ========== CAMERA ==========
+let cameraStream=null;
+function renderCamera(){
+  return `<div class="card"><div class="card-h"><span class="card-t">📷 Appareil Photo & Scanner</span></div><div class="card-b" style="padding:20px">
+    <div class="cam-preview"><video id="cam-video" autoplay playsinline></video><canvas id="cam-canvas" style="display:none"></canvas></div>
+    <div class="cam-btn"><button class="btn btn-p" onclick="startCam()">📷 Ouvrir caméra</button><button class="btn btn-g" onclick="takePhoto()">📸 Capturer</button><button class="btn btn-d" onclick="stopCam()">⏹ Fermer</button></div>
+    <div class="fg"><label class="fl">Associer à un client</label><select class="fs" id="cam-client"><option value="">— Aucun —</option>${clientOpts()}</select></div>
+    <div class="fg"><label class="fl">Description / Note</label><input class="fi" id="cam-desc" placeholder="Ex: Marchandise ciment client X"></div>
+    <div id="cam-captured" style="margin-top:12px"></div>
+  </div></div>
+  <div class="card"><div class="card-h"><span class="card-t">🖼️ Galerie Photos (${(D.photos||[]).length})</span></div><div class="card-b" style="padding:16px">
+    <div class="photo-grid">${(D.photos||[]).map(p=>`<div style="position:relative"><img src="${p.data}" class="photo-thumb" onclick="viewPhoto('${p.id}')"><button onclick="delPhoto('${p.id}')" style="position:absolute;top:2px;right:2px;background:var(--red);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:10px;cursor:pointer">×</button></div>`).join('')||'<p style="color:var(--t3)">Aucune photo</p>'}</div>
+  </div></div>`;
+}
+
+function initCamera(){}
+function startCam(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(s=>{
+    cameraStream=s;document.getElementById('cam-video').srcObject=s;
+  }).catch(e=>alert('Caméra non disponible: '+e.message));
+}
+function stopCam(){if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}}
+function takePhoto(){
+  const v=document.getElementById('cam-video'),c=document.getElementById('cam-canvas');
+  if(!cameraStream)return alert('Ouvrez la caméra d\'abord');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const data=c.toDataURL('image/jpeg',0.7);
+  document.getElementById('cam-captured').innerHTML=`<img src="${data}" style="width:100%;max-width:300px;border-radius:var(--r)"><br><button class="btn btn-p btn-s" onclick="savePhoto('${data.replace(/'/g,"\\'")}')">💾 Sauvegarder</button>`;
+}
+function savePhoto(data){
+  if(!D.photos)D.photos=[];
+  D.photos.unshift({id:uid(),data:data,clientId:document.getElementById('cam-client').value,desc:document.getElementById('cam-desc').value,date:td()});
+  syncAll();alert('✅ Photo sauvegardée!');renderPage(curPage);
+}
+function delPhoto(id){if(!confirm('Supprimer?'))return;D.photos=D.photos.filter(p=>p.id!==id);syncAll();renderPage(curPage)}
+function viewPhoto(id){const p=(D.photos||[]).find(x=>x.id===id);if(!p)return;openM('📷 Photo',`<img src="${p.data}" style="width:100%;border-radius:var(--r)"><p style="margin-top:8px;font-size:12px;color:var(--t2)">Date: ${p.date} | Client: ${gCN(p.clientId)} | ${p.desc||''}</p>`,`<button class="btn btn-g" onclick="closeM()">Fermer</button>`)}
+
+// ========== SCANNER / QR CODE ==========
+function renderScanner(){
+  return `<div class="card"><div class="card-h"><span class="card-t">🔳 Générateur QR Code & Code-barres</span></div><div class="card-b" style="padding:20px">
+    <div class="fg"><label class="fl">Type de code</label><select class="fs" id="qr-type" onchange="toggleCodeType()"><option value="qr">QR Code</option><option value="barcode">Code-barres</option></select></div>
+    <div class="fg"><label class="fl">Données à encoder</label><textarea class="ft" id="qr-data" placeholder="Texte, URL, ou ID client/colis..."></textarea></div>
+    <div class="fr"><div class="fg"><label class="fl">Associer client</label><select class="fs" id="qr-client"><option value="">— Aucun —</option>${clientOpts()}</select></div>
+    <div class="fg"><label class="fl">Marchandise</label><select class="fs" id="qr-marc"><option value="">— Aucune —</option>${marchandiseOpts()}</select></div></div>
+    <button class="btn btn-p" onclick="generateQR()" style="margin-top:8px">⚡ Générer</button>
+    <div id="qr-output" style="margin-top:16px"></div>
+  </div></div>
+  <div class="card"><div class="card-h"><span class="card-t">📱 Scanner un code</span></div><div class="card-b" style="padding:20px">
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Utilisez la caméra de votre téléphone pour scanner un QR Code ou code-barres. Allez dans <b>📷 Appareil Photo</b> pour ouvrir la caméra.</p>
+    <div class="fg"><label class="fl">Saisie manuelle du code</label><input class="fi" id="scan-input" placeholder="Collez le contenu scanné ici..."></div>
+    <button class="btn btn-p btn-s" onclick="lookupCode()">🔍 Rechercher</button>
+    <div id="scan-result" style="margin-top:12px"></div>
+  </div></div>`;
+}
+
+function generateQR(){
+  const type=document.getElementById('qr-type').value;
+  const data=document.getElementById('qr-data').value;
+  if(!data)return alert('Entrez des données');
+  const out=document.getElementById('qr-output');
+  out.innerHTML='<div class="code-output" id="code-container"></div>';
+  const container=document.getElementById('code-container');
+
+  if(type==='qr'){
+    container.innerHTML='<div id="qr-img"></div>';
+    new QRCode(document.getElementById('qr-img'),{text:data,width:200,height:200,colorDark:'#000',colorLight:'#fff'});
+    container.innerHTML+='<p style="font-size:11px;color:#333;margin-top:8px;word-break:break-all">'+data.substring(0,100)+'</p>';
+  } else {
+    container.innerHTML='<svg id="barcode-svg"></svg>';
+    try{JsBarcode('#barcode-svg',data,{format:'CODE128',width:2,height:80,displayValue:true,fontSize:14})}catch(e){container.innerHTML='<p style="color:red">Erreur: '+e.message+'</p>'}
+  }
+}
+
+function lookupCode(){
+  const code=document.getElementById('scan-input').value;
+  if(!code)return;
+  let result='';
+  try{const obj=JSON.parse(code);if(obj.client)result=`<div class="smb"><div class="sl">Client trouvé</div><div class="sv" style="font-size:14px">${obj.client}</div><p style="font-size:11px;color:var(--t2)">${obj.tel||''} — ${obj.ville||''}</p></div>`}catch(e){}
+  const found=D.clients.find(c=>c.id===code||c.nom.toLowerCase().includes(code.toLowerCase()));
+  if(found)result+=`<div class="smb" style="margin-top:8px"><div class="sl">Client</div><div class="sv" style="font-size:14px">${found.nom}</div><p style="font-size:11px;color:var(--t2)">${found.tel||''} | ${found.ville||''}</p></div>`;
+  document.getElementById('scan-result').innerHTML=result||'<p style="color:var(--t3)">Aucun résultat trouvé</p>';
+}
+
+// ========== IA ASSISTANT ==========
+let aiMessages=[];
+function renderIA(){
+  return `<div class="card" style="height:calc(100vh - 140px)"><div class="card-h"><span class="card-t">🤖 IA Assistant — LYA TRANSPORT</span><button class="btn btn-g btn-s" onclick="aiMessages=[];renderPage('ia')">🗑 Effacer</button></div>
+  <div class="ai-container"><div class="ai-messages" id="ai-msgs"></div>
+  <div class="ai-input-bar"><input class="ai-input" id="ai-in" placeholder="Posez une question sur votre activité..." onkeydown="if(event.key==='Enter')sendAI()"><button class="ai-send" onclick="sendAI()">➤</button></div></div></div>`;
+}
+
+function initAI(){
+  const el=document.getElementById('ai-msgs');
+  if(aiMessages.length===0){
+    aiMessages.push({role:'ai',text:`Bonjour <b>Yanick</b>! 👋 Je suis l'IA Assistant de <b>LYA TRANSPORT</b>.\n\nJ'ai accès à toutes les données de votre logiciel. Je peux vous aider à:\n\n• 📊 <b>Analyser</b> vos revenus, dépenses et bénéfices\n• ⚠️ <b>Prévoir des risques</b> (entretien, pneus, clients problématiques)\n• 💡 <b>Conseiller</b> sur l'optimisation des trajets et coûts\n• 📋 <b>Résumer</b> l'activité du mois\n• 🔧 <b>Alerter</b> sur les entretiens à prévoir\n\nQue voulez-vous savoir?`});
+  }
+  el.innerHTML=aiMessages.map(m=>`<div class="ai-msg ${m.role}">${m.role==='ai'?'<div class="sender">🤖 IA LYA</div>':''}${m.text}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function sendAI(){
+  const input=document.getElementById('ai-in');
+  const q=input.value.trim();if(!q)return;
+  aiMessages.push({role:'user',text:q});
+  input.value='';
+
+  // Generate AI response based on data analysis
+  const response=generateAIResponse(q);
+  aiMessages.push({role:'ai',text:response});
+  initAI();
+}
+
+function generateAIResponse(q){
+  const ql=q.toLowerCase();
+  const tRev=D.trajets.reduce((s,t)=>s+t.montant,0);
+  const tDep=D.depenses.reduce((s,d)=>s+d.montant,0);
+  const profit=tRev-tDep;
+  const now=new Date(),mo=now.getMonth(),yr=now.getFullYear();
+  const tM=D.trajets.filter(t=>{const d=new Date(t.date);return d.getMonth()===mo&&d.getFullYear()===yr});
+  const dM=D.depenses.filter(d=>{const dd=new Date(d.date);return dd.getMonth()===mo&&dd.getFullYear()===yr});
+  const revM=tM.reduce((s,t)=>s+t.montant,0);
+  const depM=dM.reduce((s,d)=>s+d.montant,0);
+  const nbClients=D.clients.length;
+  const nbCh=D.chauffeurs.length;
+  const probClients=D.clients.filter(c=>c.problematique);
+  const dangerM=D.marchandises.filter(m=>m.dangereux);
+  const kmTotal=D.trajets.reduce((s,t)=>s+(t.distance||0),0);
+  const cam=D.camion;
+
+  if(ql.includes('revenu')||ql.includes('chiffre')||ql.includes('gagn')){
+    return `📊 <b>Analyse des revenus:</b>\n\n• Revenus total: <b>${fmt(tRev)}</b>\n• Revenus ce mois: <b>${fmt(revM)}</b> (${tM.length} trajets)\n• Nombre total de trajets: <b>${D.trajets.length}</b>\n• Km total parcourus: <b>${fN(kmTotal)} km</b>\n\n${tRev>0?`💡 Votre revenu moyen par trajet est de <b>${fmt(Math.round(tRev/D.trajets.length))}</b>.`:'Aucun trajet enregistré pour le moment.'}`;
+  }
+  if(ql.includes('dépense')||ql.includes('depense')||ql.includes('coût')||ql.includes('cout')){
+    const cats={};D.depenses.forEach(d=>{if(!cats[d.categorie])cats[d.categorie]=0;cats[d.categorie]+=d.montant});
+    const top3=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    return `💰 <b>Analyse des dépenses:</b>\n\n• Total dépenses: <b style="color:var(--red)">${fmt(tDep)}</b>\n• Dépenses ce mois: <b>${fmt(depM)}</b>\n\n📊 Top 3 catégories:\n${top3.map(([c,v],i)=>`${i+1}. ${depCatLabel(c)}: <b>${fmt(v)}</b>`).join('\n')}\n\n${profit>0?`✅ Bénéfice net: <b style="color:var(--grn)">${fmt(profit)}</b>`:`⚠️ <b style="color:var(--red)">Perte nette: ${fmt(Math.abs(profit))}</b> — Attention!`}`;
+  }
+  if(ql.includes('bénéfice')||ql.includes('benefice')||ql.includes('profit')||ql.includes('marge')){
+    const marge=tRev>0?Math.round(profit/tRev*100):0;
+    return `💎 <b>Bilan financier:</b>\n\n• Revenus: <b style="color:var(--grn)">${fmt(tRev)}</b>\n• Dépenses: <b style="color:var(--red)">${fmt(tDep)}</b>\n• Bénéfice: <b style="color:var(--acc)">${fmt(profit)}</b>\n• Marge: <b>${marge}%</b>\n\n${marge>30?'✅ Excellente marge! Continuez ainsi.':marge>15?'⚠️ Marge correcte mais à surveiller.':'🚨 Marge faible! Réduisez les dépenses ou augmentez vos tarifs.'}`;
+  }
+  if(ql.includes('risque')||ql.includes('danger')||ql.includes('alerte')||ql.includes('attention')){
+    let alerts=[];
+    if(probClients.length)alerts.push(`⚠️ <b>${probClients.length} client(s) problématique(s):</b> ${probClients.map(c=>c.nom).join(', ')}`);
+    if(dangerM.length)alerts.push(`🔥 <b>${dangerM.length} marchandise(s) dangereuse(s)</b> dans votre catalogue: ${dangerM.map(m=>m.nom).join(', ')} — Vérifiez les permis et assurances.`);
+    if(cam.fuel<20&&cam.fuel>0)alerts.push(`⛽ <b>Niveau carburant bas: ${cam.fuel}%</b> — Faites le plein!`);
+    if(kmTotal>10000)alerts.push(`🔧 <b>${fN(kmTotal)} km parcourus</b> — Pensez à vérifier pneus, freins et vidange.`);
+    if(D.chauffeurs.filter(c=>c.statut==='suspendu').length)alerts.push(`👤 Des chauffeurs sont suspendus.`);
+    if(!alerts.length)alerts.push('✅ Aucune alerte majeure détectée! Tout semble en ordre.');
+    return `🚨 <b>Analyse des risques LYA TRANSPORT:</b>\n\n${alerts.join('\n\n')}`;
+  }
+  if(ql.includes('client')){
+    return `🏢 <b>Analyse clients:</b>\n\n• Nombre total: <b>${nbClients}</b>\n• Clients problématiques: <b style="color:var(--red)">${probClients.length}</b>\n${probClients.length?'⚠️ Clients à surveiller: '+probClients.map(c=>c.nom).join(', '):''}\n\n💡 <b>Conseil:</b> ${nbClients<5?'Diversifiez votre base clients pour réduire la dépendance.':'Bonne diversification! Fidélisez vos meilleurs clients.'}`;
+  }
+  if(ql.includes('chauffeur')||ql.includes('equip')){
+    return `👥 <b>Équipe LYA TRANSPORT:</b>\n\n• Admin: <b>${D.admin.nom}</b>\n• Chauffeurs: <b>${nbCh}</b>\n• Équipage total: <b>${D.equipage.length+1}</b>\n\nStatuts: ${D.chauffeurs.map(c=>`${c.nom} (${CH_STAT[c.statut]?.l||c.statut})`).join(', ')||'Aucun chauffeur'}`;
+  }
+  if(ql.includes('conseil')||ql.includes('optimis')||ql.includes('améliorer')){
+    return `💡 <b>Conseils d'optimisation:</b>\n\n1. 🛣️ <b>Trajets:</b> Privilégiez les routes Brazzaville-Pointe-Noire (plus rentables). Groupez les livraisons.\n\n2. ⛽ <b>Carburant:</b> Approvisionnez en gros pour négocier les prix. Évitez les stations-service de bord de route.\n\n3. 🔧 <b>Entretien:</b> Respectez les vidanges tous les 10 000 km. Vérifiez les pneus avant chaque départ.\n\n4. 💰 <b>Trésorerie:</b> Exigez 50% d'avance minimum. Méfiez-vous des clients qui paient toujours en retard.\n\n5. 📋 <b>Assurance:</b> Vérifiez que votre assurance couvre le transport de marchandises dangereuses si vous en transportez.`;
+  }
+  if(ql.includes('résumé')||ql.includes('resume')||ql.includes('bilan')||ql.includes('activité')){
+    return `📋 <b>Résumé activité LYA TRANSPORT:</b>\n\n🚛 <b>Camion:</b> ${cam.immat||'Non configuré'} | ${fN(cam.km)} km\n👥 <b>Équipe:</b> ${D.equipage.length+1} membres | ${nbCh} chauffeurs\n🏢 <b>Clients:</b> ${nbClients} enregistrés\n📦 <b>Marchandises:</b> ${D.marchandises.length} dans le catalogue\n\n📊 <b>Ce mois:</b>\n• ${tM.length} trajets | ${fmt(revM)} revenus\n• ${dM.length} dépenses | ${fmt(depM)}\n• Bénéfice mensuel: <b>${fmt(revM-depM)}</b>\n\n📈 <b>Global:</b>\n• ${D.trajets.length} trajets | ${fmt(tRev)} revenus\n• Bénéfice total: <b>${fmt(profit)}</b>`;
+  }
+  if(ql.includes('camion')||ql.includes('véhicule')||ql.includes('vehicule')){
+    return `🚛 <b>État du camion:</b>\n\n• Immatriculation: <b>${cam.immat||'Non défini'}</b>\n• Marque: ${cam.marque||'—'}\n• Année: ${cam.annee||'—'}\n• Capacité: ${cam.capacite||'—'} tonnes\n• Kilométrage: <b>${fN(cam.km)} km</b>\n• Carburant: <b>${cam.fuel||0}%</b>\n• Entretiens enregistrés: ${D.entretiens.length}\n\n${cam.km>100000?'⚠️ Kilométrage élevé! Surveillance renforcée recommandée.':'✅ Kilométrage raisonnable.'}`;
+  }
+
+  return `🤖 Je comprends votre question. Voici ce que je sais:\n\n• <b>${D.trajets.length}</b> trajets enregistrés\n• <b>${nbClients}</b> clients | <b>${nbCh}</b> chauffeurs\n• Revenus: <b>${fmt(tRev)}</b> | Dépenses: <b>${fmt(tDep)}</b>\n• Bénéfice: <b>${fmt(profit)}</b>\n\n💡 Essayez de me demander: <i>revenus, dépenses, bénéfice, risques, clients, conseils, résumé, camion, chauffeurs</i>`;
+}
+
+// ========== DEPENSES ==========
+function renderDepenses(){
+  const cats={};D.depenses.forEach(d=>{if(!cats[d.categorie])cats[d.categorie]=0;cats[d.categorie]+=d.montant});
+  const totalD=D.depenses.reduce((s,d)=>s+d.montant,0);
+  let sumHTML=`<div class="smb"><div class="sl">Total Dépenses</div><div class="sv" style="color:var(--red)">${fmt(totalD)}</div></div>`;
+  Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3).forEach(([c,v])=>{sumHTML+=`<div class="smb"><div class="sl">${depCatLabel(c)}</div><div class="sv">${fmt(v)}</div></div>`});
+
+  let rows=D.depenses.map(d=>`<tr><td>${d.date}</td><td>${depCatLabel(d.categorie)}</td><td>${d.description||'—'}</td><td style="font-weight:600;color:var(--red)">${fmt(d.montant)}</td>${canDelete()?`<td><div class="ab"><button class="abtn del" onclick="delItem('depenses','${d.id}')">🗑</button></div></td>`:''}</tr>`).join('');
+  return `<div class="smg">${sumHTML}</div><div class="card"><div class="card-h"><span class="card-t">Registre Dépenses (${D.depenses.length})</span><button class="btn btn-p btn-s" onclick="modalDep()">+ Nouvelle Dépense</button></div><div class="card-b"><table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th>${canDelete()?'<th>Act.</th>':''}</tr></thead><tbody>${rows||'<tr><td colspan="5"><div class="empty"><div class="eic">💸</div><p>Aucune dépense</p></div></td></tr>'}</tbody></table></div></div>`;
+}
+
+function modalDep(){
+  openM('Nouvelle Dépense',`
+    <div class="fr"><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="d-date" value="${td()}"></div>
+    <div class="fg"><label class="fl">Catégorie</label><select class="fs" id="d-cat">${depCatOpts()}</select></div></div>
+    <div class="fg"><label class="fl">Description</label><input class="fi" id="d-desc" placeholder="Détails..."></div>
+    <div class="fr"><div class="fg"><label class="fl">Montant (FCFA)</label><input class="fi" type="number" id="d-mont"></div>
+    <div class="fg"><label class="fl">Litres (si carburant)</label><input class="fi" type="number" id="d-lit"></div></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveDep()">Enregistrer</button>`);
+}
+
+function saveDep(){const d={id:uid(),date:document.getElementById('d-date').value||td(),categorie:document.getElementById('d-cat').value,description:document.getElementById('d-desc').value,montant:parseFloat(document.getElementById('d-mont').value)||0,litres:parseFloat(document.getElementById('d-lit').value)||0};if(!d.montant)return alert('Montant requis');D.depenses.unshift(d);syncAll();closeM();renderPage(curPage)}
+
+// ========== CAMION & ENTRETIEN ==========
+function renderCamion(){
+  const c=D.camion;
+  let entRows=D.entretiens.map(e=>`<tr><td>${e.date}</td><td><span class="bdg bdg-b">${e.type}</span></td><td>${e.description||'—'}</td><td>${e.km?fN(e.km)+' km':'—'}</td><td style="font-weight:600">${fmt(e.cout)}</td><td><div class="ab"><button class="abtn del" onclick="delItem('entretiens','${e.id}')">🗑</button></div></td></tr>`).join('');
+  return `
+  <div class="sg">
+    <div class="sc"><div class="sc-ic o">🚛</div><div class="sc-lb">Immatriculation</div><div class="sc-vl" style="font-size:18px">${c.immat||'—'}</div></div>
+    <div class="sc"><div class="sc-ic g">📅</div><div class="sc-lb">Prochain entretien</div><div class="sc-vl" style="font-size:16px">${D.entretiens.length?D.entretiens[0].date:'—'}</div></div>
+    <div class="sc"><div class="sc-ic b">⛽</div><div class="sc-lb">Carburant</div><div class="sc-vl">${c.fuel||0}%</div><div class="fuel-bg"><div class="fuel-bar" style="width:${c.fuel||0}%"></div></div></div>
+    <div class="sc"><div class="sc-ic p">📏</div><div class="sc-lb">Kilométrage</div><div class="sc-vl">${fN(c.km||0)} km</div></div>
+  </div>
+  <div class="card"><div class="card-h"><span class="card-t">🔧 Historique Entretien</span><button class="btn btn-p btn-s" onclick="modalEntr()">+ Ajouter</button></div><div class="card-b"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Km</th><th>Coût</th><th>Act.</th></tr></thead><tbody>${entRows||'<tr><td colspan="6"><div class="empty"><div class="eic">🔧</div><p>Aucun entretien</p></div></td></tr>'}</tbody></table></div></div>
+  <div class="card"><div class="card-h"><span class="card-t">⚙️ Paramètres Camion</span><button class="btn btn-p btn-s" onclick="saveCamion()">💾 Enregistrer</button></div><div class="card-b" style="padding:20px">
+    <div class="fr"><div class="fg"><label class="fl">Immatriculation</label><input class="fi" id="c-immat" value="${c.immat||''}" placeholder="BZV-1234-CG"></div><div class="fg"><label class="fl">Marque/Modèle</label><input class="fi" id="c-marque" value="${c.marque||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Année</label><input class="fi" type="number" id="c-annee" value="${c.annee||''}"></div><div class="fg"><label class="fl">Capacité (T)</label><input class="fi" type="number" id="c-cap" value="${c.capacite||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Kilométrage</label><input class="fi" type="number" id="c-km" value="${c.km||''}"></div><div class="fg"><label class="fl">Carburant (%)</label><input class="fi" type="number" id="c-fuel" value="${c.fuel||''}" min="0" max="100"></div></div>
+  </div></div>`;
+}
+
+function saveCamion(){D.camion={immat:document.getElementById('c-immat').value,marque:document.getElementById('c-marque').value,annee:document.getElementById('c-annee').value,capacite:document.getElementById('c-cap').value,km:parseFloat(document.getElementById('c-km').value)||0,fuel:parseFloat(document.getElementById('c-fuel').value)||0};syncAll();alert('✅ Enregistré!');renderPage(curPage)}
+
+function modalEntr(){
+  openM('Nouvel Entretien',`
+    <div class="fr"><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="en-date" value="${td()}"></div>
+    <div class="fg"><label class="fl">Type</label><select class="fs" id="en-type"><option>Vidange</option><option>Freins</option><option>Pneus</option><option>Moteur</option><option>Suspension</option><option>Électricité</option><option>Carrosserie</option><option>Contrôle technique</option><option>Autre</option></select></div></div>
+    <div class="fg"><label class="fl">Description</label><input class="fi" id="en-desc"></div>
+    <div class="fr"><div class="fg"><label class="fl">Km</label><input class="fi" type="number" id="en-km"></div><div class="fg"><label class="fl">Coût (FCFA)</label><input class="fi" type="number" id="en-cout"></div></div>`,
+  `<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveEntr()">Enregistrer</button>`);
+}
+
+function saveEntr(){
+  const e={id:uid(),date:document.getElementById('en-date').value||td(),type:document.getElementById('en-type').value,description:document.getElementById('en-desc').value,km:parseFloat(document.getElementById('en-km').value)||0,cout:parseFloat(document.getElementById('en-cout').value)||0};
+  D.entretiens.unshift(e);
+  D.depenses.unshift({id:uid(),date:e.date,categorie:'entretien',description:`Entretien ${e.type}: ${e.description}`,montant:e.cout,litres:0});
+  syncAll();closeM();renderPage(curPage);
+}
+
+// ========== VILLES DU CONGO ==========
+function renderVilles(){
+  const grouped={};D.villes.forEach(v=>{const l=v[0].toUpperCase();if(!grouped[l])grouped[l]=[];grouped[l].push(v)});
+  let listHTML=Object.keys(grouped).sort().map(l=>`<div style="margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:var(--acc);margin-bottom:6px">${l}</div><div class="tags">${grouped[l].sort().map(v=>`<span class="tag">${v} <span class="tag-x" onclick="removeVille('${v}')">×</span></span>`).join('')}</div></div>`).join('');
+  return `<div class="card"><div class="card-h"><span class="card-t">🗺️ Villes du Congo (${D.villes.length})</span><button class="btn btn-p btn-s" onclick="modalVille()">+ Ajouter ville</button></div><div class="card-b" style="padding:20px">${listHTML}</div></div>`;
+}
+
+function modalVille(){openM('Ajouter une ville',`<div class="fg"><label class="fl">Nom de la ville</label><input class="fi" id="v-nom" placeholder="Ex: Ouesso"></div>`,`<button class="btn btn-g" onclick="closeM()">Annuler</button><button class="btn btn-p" onclick="saveVille()">Ajouter</button>`)}
+function saveVille(){const n=document.getElementById('v-nom').value.trim();if(!n)return;if(D.villes.includes(n))return alert('Ville déjà existante');D.villes.push(n);syncAll();closeM();renderPage(curPage)}
+function removeVille(v){if(!confirm(`Retirer "${v}"?`))return;D.villes=D.villes.filter(x=>x!==v);syncAll();renderPage(curPage)}
+
+// ========== ADMIN ==========
+function renderAdmin(){
+  const cfg=loadFirebaseConfig();
+  return `<div class="card"><div class="card-h"><span class="card-t">⚙️ Administration — LYA TRANSPORT</span></div><div class="card-b" style="padding:20px">
+    <div class="smg">
+      <div class="smb"><div class="sl">Administrateur</div><div class="sv" style="font-size:14px;color:var(--acc)">${D.admin.nom}</div></div>
+      <div class="smb"><div class="sl">Téléphone</div><div class="sv" style="font-size:14px">${D.admin.tel}</div></div>
+      <div class="smb"><div class="sl">Cloud</div><div class="sv" style="font-size:12px;color:${fbConnected?'var(--grn)':'var(--t3)'}">${fbConnected?'☁️ Connecté':'📴 Hors-ligne'}</div></div>
+    </div>
+    <h4 style="font-size:13px;color:var(--acc);margin:16px 0 8px">Modifier profil admin</h4>
+    <div class="fr"><div class="fg"><label class="fl">Nom</label><input class="fi" id="ad-nom" value="${D.admin.nom}"></div><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ad-tel" value="${D.admin.tel||''}"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">💬 WhatsApp</label><input class="fi" id="ad-wa" value="${D.admin.whatsapp||D.admin.tel||''}"></div><div class="fg"><label class="fl">Email</label><input class="fi" id="ad-email" value="${D.admin.email||''}"></div></div>
+    <button class="btn btn-p btn-s" onclick="saveAdmin()">💾 Enregistrer</button>
+  </div></div>
+
+  <div class="card"><div class="card-h"><span class="card-t">☁️ Synchronisation Cloud — France ↔ Congo</span><span class="bdg ${fbConnected?'bdg-g':'bdg-r'}">${fbConnected?'CONNECTÉ':'DÉCONNECTÉ'}</span></div><div class="card-b" style="padding:20px">
+    <div style="background:var(--bg);border-radius:var(--rs);padding:16px;margin-bottom:16px;font-size:12px;color:var(--t2);line-height:1.8">
+      <b style="color:var(--acc)">🔥 Comment ça marche:</b><br>
+      1. Créez un projet Firebase gratuit sur <a href="https://console.firebase.google.com" target="_blank" style="color:var(--acc)">console.firebase.google.com</a><br>
+      2. Activez <b>Realtime Database</b> (pas Firestore)<br>
+      3. Dans les règles, mettez: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">{"rules":{".read":true,".write":true}}</code><br>
+      4. Copiez la config Firebase ci-dessous<br>
+      5. L'app sur le <b>téléphone du chauffeur à Brazzaville</b> et sur votre <b>PC en France</b> se synchronisent <b>en temps réel</b><br><br>
+      <b style="color:var(--grn)">✅ Position GPS du camion visible en direct depuis la France</b><br>
+      <b style="color:var(--grn)">✅ Trajets, dépenses, clients synchronisés instantanément</b><br>
+      <b style="color:var(--grn)">✅ Fonctionne même avec connexion lente (3G/Edge)</b>
+    </div>
+    <div class="fg"><label class="fl">API Key</label><input class="fi" id="fb-apikey" value="${cfg?.apiKey||''}" placeholder="AIzaSy..."></div>
+    <div class="fg"><label class="fl">Auth Domain</label><input class="fi" id="fb-auth" value="${cfg?.authDomain||''}" placeholder="monprojet.firebaseapp.com"></div>
+    <div class="fg"><label class="fl">Database URL</label><input class="fi" id="fb-dburl" value="${cfg?.databaseURL||''}" placeholder="https://monprojet-default-rtdb.firebaseio.com"></div>
+    <div class="fg"><label class="fl">Project ID</label><input class="fi" id="fb-projid" value="${cfg?.projectId||''}" placeholder="monprojet"></div>
+    <div class="fg"><label class="fl">Storage Bucket</label><input class="fi" id="fb-bucket" value="${cfg?.storageBucket||''}" placeholder="monprojet.appspot.com"></div>
+    <div class="fg"><label class="fl">App ID</label><input class="fi" id="fb-appid" value="${cfg?.appId||''}" placeholder="1:123456:web:abc123"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="connectFirebase()">🔥 Connecter Firebase</button>
+      <button class="btn btn-g" onclick="testCloudPush()">🧪 Tester envoi</button>
+      ${cfg?'<button class="btn btn-d btn-s" onclick="disconnectFirebase()">🔌 Déconnecter</button>':''}
+    </div>
+    ${fbConnected?'<div style="margin-top:12px;padding:10px;background:var(--grnB);border:1px solid var(--grn);border-radius:var(--rs);font-size:12px;color:var(--grn)">✅ <b>Firebase connecté!</b> Toutes les données sont synchronisées en temps réel entre la France et le Congo.</div>':''}
+  </div></div>
+
+  <div class="card"><div class="card-h"><span class="card-t">🔐 Mots de passe</span></div><div class="card-b" style="padding:20px">
+    <div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:16px;font-size:12px;color:var(--t2);line-height:1.8">
+      <b style="color:var(--acc)">👑 Admin</b> — Accès complet: modifier, ajouter, supprimer tout. Gérer l'équipage, les finances, les paramètres, le cloud Firebase et les mots de passe.<br>
+      <b style="color:var(--blu)">🚛 Chauffeur</b> — Accès limité: voir le tableau de bord et les trajets, utiliser le compteur GPS, ajouter des dépenses de route, prendre des photos, utiliser l'IA. <b>Ne peut pas modifier ni supprimer.</b>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">🔑 Mot de passe Administrateur</label><input class="fi" type="text" id="pwd-admin" value="${loadPasswords().admin}"></div>
+      <div class="fg"><label class="fl">🔑 Mot de passe Chauffeur</label><input class="fi" type="text" id="pwd-chauffeur" value="${loadPasswords().chauffeur}"></div>
+    </div>
+    <button class="btn btn-p btn-s" onclick="saveNewPasswords()">💾 Enregistrer les mots de passe</button>
+    <div style="margin-top:10px;font-size:11px;color:var(--t3)">⚠️ Donnez uniquement le mot de passe chauffeur à vos chauffeurs. Le mot de passe admin est réservé à Yanick Loutonto.</div>
+  </div></div>
+
+  <div class="card"><div class="card-h"><span class="card-t">📊 Statistiques globales</span></div><div class="card-b" style="padding:20px">
+    <div class="smg">
+      <div class="smb"><div class="sl">Trajets</div><div class="sv">${D.trajets.length}</div></div>
+      <div class="smb"><div class="sl">Clients</div><div class="sv">${D.clients.length}</div></div>
+      <div class="smb"><div class="sl">Chauffeurs</div><div class="sv">${D.chauffeurs.length}</div></div>
+      <div class="smb"><div class="sl">Équipage</div><div class="sv">${D.equipage.length+1}</div></div>
+      <div class="smb"><div class="sl">Marchandises</div><div class="sv">${D.marchandises.length}</div></div>
+      <div class="smb"><div class="sl">Villes</div><div class="sv">${D.villes.length}</div></div>
+      <div class="smb"><div class="sl">Photos</div><div class="sv">${(D.photos||[]).length}</div></div>
+      <div class="smb"><div class="sl">GPS Trips</div><div class="sv">${D.gpsTrips.length}</div></div>
+    </div>
+    <button class="btn btn-d btn-s" onclick="if(confirm('⚠️ Réinitialiser TOUTES les données?')){localStorage.removeItem('${DB}');localStorage.removeItem('${FIREBASE_CONFIG_KEY}');location.reload()}">🗑 Réinitialiser toutes les données</button>
+  </div></div>`;
+}
+
+function saveNewPasswords(){
+  const a=document.getElementById('pwd-admin').value.trim();
+  const c=document.getElementById('pwd-chauffeur').value.trim();
+  if(!a||a.length<3)return alert('Le mot de passe admin doit faire au moins 3 caractères');
+  if(!c||c.length<3)return alert('Le mot de passe chauffeur doit faire au moins 3 caractères');
+  if(a===c)return alert('Les deux mots de passe doivent être différents!');
+  savePasswords({admin:a,chauffeur:c});
+  alert('✅ Mots de passe mis à jour!\n\n👑 Admin: '+a+'\n🚛 Chauffeur: '+c);
+}
+
+function connectFirebase(){
+  const cfg={apiKey:document.getElementById('fb-apikey').value.trim(),authDomain:document.getElementById('fb-auth').value.trim(),databaseURL:document.getElementById('fb-dburl').value.trim(),projectId:document.getElementById('fb-projid').value.trim(),storageBucket:document.getElementById('fb-bucket').value.trim(),appId:document.getElementById('fb-appid').value.trim()};
+  if(!cfg.apiKey||!cfg.databaseURL)return alert('API Key et Database URL sont obligatoires!');
+  saveFirebaseConfig(cfg);
+  initFirebase(cfg).then(ok=>{if(ok){renderPage('admin')}else{alert('Erreur de connexion Firebase')}});
+}
+
+function disconnectFirebase(){
+  if(!confirm('Déconnecter Firebase?'))return;
+  localStorage.removeItem(FIREBASE_CONFIG_KEY);
+  fbConnected=false;fbListenerActive=false;
+  if(fbRef)fbRef.off();
+  fbRef=null;fbDB=null;
+  updateCloudStatus();renderPage('admin');
+  showSync('🔌 Firebase déconnecté');
+}
+
+function testCloudPush(){
+  if(!fbConnected)return alert('Firebase non connecté!');
+  pushToCloud();
+  showSync('🧪 Données envoyées au cloud — Vérifiez Firebase Console');
+}
+
+function saveAdmin(){D.admin.nom=document.getElementById('ad-nom').value;D.admin.tel=document.getElementById('ad-tel').value;D.admin.whatsapp=document.getElementById('ad-wa').value;D.admin.email=document.getElementById('ad-email').value;syncAll('Admin');document.getElementById('admin-name').textContent=D.admin.nom;alert('✅ Profil admin mis à jour!')}
+
+// ========== GUIDE FIREBASE ==========
+function renderGuide(){
+  const stepStyle='background:var(--bg);border:1px solid var(--brd);border-radius:var(--r);padding:20px;margin-bottom:16px';
+  const numStyle='display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--accD));color:#000;font-size:16px;font-weight:800;margin-right:12px;flex-shrink:0';
+  const imgStyle='background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:16px;margin:12px 0;font-family:monospace;font-size:12px;color:var(--grn);line-height:1.8;overflow-x:auto';
+  const tipStyle='background:var(--accG);border:1px solid var(--acc);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--acc);margin:10px 0';
+
+  return `
+  <div class="card"><div class="card-h"><span class="card-t">📖 Guide Complet — Activer Firebase en 5 minutes</span></div><div class="card-b" style="padding:24px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:48px;margin-bottom:8px">🔥</div>
+      <div style="font-size:18px;font-weight:700;color:var(--acc)">Firebase = Synchronisation temps réel France ↔ Congo</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:6px">Gratuit • 5 minutes • Pas besoin de coder</div>
+    </div>
+
+    <!-- ÉTAPE 1 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">1</span><span style="font-size:16px;font-weight:700">Créer un compte Google (si pas déjà fait)</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Si tu as déjà un compte Gmail, c'est bon, passe à l'étape 2.<br>
+        Sinon, va sur <a href="https://accounts.google.com/signup" target="_blank" style="color:var(--acc)">accounts.google.com/signup</a> et crée un compte gratuit.
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">2</span><span style="font-size:16px;font-weight:700">Aller sur Firebase Console</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Ouvre ton navigateur et va sur :<br>
+        <a href="https://console.firebase.google.com" target="_blank" style="color:var(--acc);font-size:16px;font-weight:700">👉 console.firebase.google.com</a><br><br>
+        Connecte-toi avec ton compte Google.
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">3</span><span style="font-size:16px;font-weight:700">Créer un nouveau projet</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        1. Clique sur le gros bouton <b>"Ajouter un projet"</b> (ou "Create a project")<br>
+        2. Nom du projet : tape <b>lya-transport</b><br>
+        3. Google Analytics : <b>désactive-le</b> (pas besoin, clique le toggle pour le mettre sur OFF)<br>
+        4. Clique <b>"Créer le projet"</b><br>
+        5. Attends 30 secondes... puis clique <b>"Continuer"</b>
+      </div>
+      <div style="${tipStyle}">💡 Le projet est 100% gratuit. Firebase offre 1 Go de stockage et 10 Go/mois de transfert gratuitement.</div>
+    </div>
+
+    <!-- ÉTAPE 4 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">4</span><span style="font-size:16px;font-weight:700">Activer Realtime Database</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Tu es maintenant dans ton projet. Dans le <b>menu à gauche</b> :<br><br>
+        1. Clique sur <b>"Build"</b> (ou "Création") pour ouvrir le sous-menu<br>
+        2. Clique sur <b>"Realtime Database"</b> (⚠️ PAS "Firestore Database")<br>
+        3. Clique le bouton <b>"Créer une base de données"</b> (ou "Create Database")<br>
+        4. Emplacement : choisis <b>"Europe (europe-west1)"</b> ou <b>"Belgium"</b><br>
+        5. Mode de sécurité : choisis <b>"Mode test"</b> (Start in test mode)<br>
+        6. Clique <b>"Activer"</b> (ou "Enable")
+      </div>
+      <div style="${tipStyle}">⚠️ IMPORTANT : Choisis bien <b>"Realtime Database"</b> et pas "Cloud Firestore". Ce sont deux choses différentes!</div>
+    </div>
+
+    <!-- ÉTAPE 5 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">5</span><span style="font-size:16px;font-weight:700">Vérifier les règles de sécurité</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Dans la page Realtime Database, clique sur l'onglet <b>"Règles"</b> (ou "Rules") en haut.<br><br>
+        Vérifie que les règles ressemblent à ça :
+      </div>
+      <div style="${imgStyle}">
+{<br>
+&nbsp;&nbsp;"rules": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;".read": true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;".write": true<br>
+&nbsp;&nbsp;}<br>
+}
+      </div>
+      <div style="font-size:13px;color:var(--t2)">Si c'est différent, remplace le texte par celui ci-dessus et clique <b>"Publier"</b> (ou "Publish").</div>
+      <div style="${tipStyle}">💡 En mode test, les règles expirent après 30 jours. Firebase t'enverra un email pour te rappeler de les renouveler. Remets-les simplement à true.</div>
+    </div>
+
+    <!-- ÉTAPE 6 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">6</span><span style="font-size:16px;font-weight:700">Récupérer la configuration Firebase</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        C'est l'étape la plus importante! Tu dois copier 6 valeurs :<br><br>
+        1. Dans le menu à gauche, clique sur <b>⚙️ (la roue dentée)</b> à côté de "Project Overview"<br>
+        2. Clique sur <b>"Paramètres du projet"</b> (ou "Project settings")<br>
+        3. Descends tout en bas de la page jusqu'à <b>"Vos applications"</b><br>
+        4. Si aucune app n'est listée, clique sur l'icône <b>&lt;/&gt;</b> (Web) pour ajouter une app web<br>
+        5. Nom de l'app : tape <b>LYA TRANSPORT</b><br>
+        6. Décoche "Firebase Hosting"<br>
+        7. Clique <b>"Enregistrer l'app"</b><br><br>
+        Tu verras maintenant un bloc de code. Les valeurs dont tu as besoin sont :
+      </div>
+      <div style="${imgStyle}">
+const firebaseConfig = {<br>
+&nbsp;&nbsp;apiKey: "<b style="color:var(--acc)">AIzaSyD.......................votre-clé</b>",<br>
+&nbsp;&nbsp;authDomain: "<b style="color:var(--acc)">lya-transport.firebaseapp.com</b>",<br>
+&nbsp;&nbsp;databaseURL: "<b style="color:var(--acc)">https://lya-transport-default-rtdb.europe-west1.firebasedatabase.app</b>",<br>
+&nbsp;&nbsp;projectId: "<b style="color:var(--acc)">lya-transport</b>",<br>
+&nbsp;&nbsp;storageBucket: "<b style="color:var(--acc)">lya-transport.appspot.com</b>",<br>
+&nbsp;&nbsp;appId: "<b style="color:var(--acc)">1:123456789:web:abc123def456</b>"<br>
+};
+      </div>
+      <div style="${tipStyle}">💡 Le <b>databaseURL</b> est la valeur la plus importante. Si tu ne la vois pas dans le code, retourne dans Realtime Database — l'URL est affichée en haut de la page (commence par https:// et finit par .firebasedatabase.app).</div>
+    </div>
+
+    <!-- ÉTAPE 7 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">7</span><span style="font-size:16px;font-weight:700">Coller dans LYA TRANSPORT</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        1. Dans LYA TRANSPORT, va dans <b>⚙️ Administration</b><br>
+        2. Descends jusqu'à la section <b>☁️ Synchronisation Cloud</b><br>
+        3. Copie-colle chaque valeur dans le champ correspondant :<br><br>
+        &nbsp;&nbsp;• <b>API Key</b> → la valeur après "apiKey"<br>
+        &nbsp;&nbsp;• <b>Auth Domain</b> → la valeur après "authDomain"<br>
+        &nbsp;&nbsp;• <b>Database URL</b> → la valeur après "databaseURL" ⭐ (la plus importante!)<br>
+        &nbsp;&nbsp;• <b>Project ID</b> → la valeur après "projectId"<br>
+        &nbsp;&nbsp;• <b>Storage Bucket</b> → la valeur après "storageBucket"<br>
+        &nbsp;&nbsp;• <b>App ID</b> → la valeur après "appId"<br><br>
+        4. Clique <b>🔥 Connecter Firebase</b><br>
+        5. Le badge en haut doit passer à <b style="color:var(--grn)">☁️ Cloud connecté</b> ✅
+      </div>
+      <div style="margin-top:12px"><button class="btn btn-p" onclick="goTo('admin')">👉 Aller dans Administration maintenant</button></div>
+    </div>
+
+    <!-- ÉTAPE 8 -->
+    <div style="${stepStyle}">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><span style="${numStyle}">8</span><span style="font-size:16px;font-weight:700">Installer sur le téléphone du chauffeur</span></div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Pour que la synchronisation fonctionne entre la France et le Congo :<br><br>
+        <b>Option A — Partager le fichier :</b><br>
+        1. Envoie le fichier <b>LYA_TRANSPORT_v4.html</b> par WhatsApp au chauffeur<br>
+        2. Le chauffeur ouvre le fichier sur son téléphone dans Chrome<br>
+        3. Il se connecte avec le mot de passe <b>chauffeur</b><br>
+        4. Il va dans le compteur GPS et tu vois sa position en direct 🎉<br><br>
+        <b>Option B — Héberger en ligne (recommandé) :</b><br>
+        1. Va sur <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--acc)">app.netlify.com/drop</a><br>
+        2. Glisse-dépose le fichier HTML → tu obtiens une URL (ex: lya-transport.netlify.app)<br>
+        3. Envoie cette URL au chauffeur par WhatsApp<br>
+        4. Toi en France et le chauffeur au Congo ouvrez la même URL<br>
+        5. Les deux entrent la <b>même config Firebase</b> dans Administration<br>
+        6. <b>Tout se synchronise en temps réel!</b> 🔥
+      </div>
+      <div style="${tipStyle}">⭐ IMPORTANT : Les DEUX appareils (France + Congo) doivent avoir la <b>même config Firebase</b> dans Administration. C'est ce qui les relie ensemble.</div>
+    </div>
+
+    <!-- RÉSUMÉ -->
+    <div style="background:linear-gradient(135deg,rgba(245,166,35,.1),rgba(52,211,153,.1));border:1px solid var(--acc);border-radius:var(--r);padding:24px;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">🎉</div>
+      <div style="font-size:16px;font-weight:700;color:var(--acc);margin-bottom:8px">C'est tout! Firebase est prêt.</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.8">
+        Depuis ton PC en France, tu verras :<br>
+        📡 <b>Position GPS du camion</b> en temps réel sur le tableau de bord<br>
+        💰 <b>Dépenses ajoutées</b> par le chauffeur instantanément<br>
+        📷 <b>Photos prises</b> sur le terrain<br>
+        🛣️ <b>Trajets et kilomètres</b> synchronisés automatiquement
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a href="https://console.firebase.google.com" target="_blank" class="btn btn-p" style="text-decoration:none">🔥 Ouvrir Firebase Console</a>
+        <button class="btn btn-g" onclick="goTo('admin')">⚙️ Aller dans Administration</button>
+      </div>
+    </div>
+
+  </div></div>
+
+  <!-- FAQ -->
+  <div class="card"><div class="card-h"><span class="card-t">❓ Questions fréquentes</span></div><div class="card-b" style="padding:20px;font-size:13px;color:var(--t2);line-height:1.8">
+    <b style="color:var(--t1)">Est-ce que Firebase est gratuit ?</b><br>
+    Oui, le plan gratuit (Spark) offre 1 Go de stockage et 10 Go/mois de transfert. Largement suffisant pour LYA TRANSPORT.<br><br>
+    <b style="color:var(--t1)">Ça fonctionne avec une connexion lente au Congo ?</b><br>
+    Oui! Firebase envoie seulement les données qui changent (quelques Ko). Ça fonctionne même en 2G/3G/Edge. Le GPS fonctionne offline et synchronise dès que le réseau revient.<br><br>
+    <b style="color:var(--t1)">Que se passe-t-il si le chauffeur perd le réseau ?</b><br>
+    L'app continue de fonctionner en mode hors-ligne (localStorage). Dès que le réseau revient, tout se synchronise automatiquement.<br><br>
+    <b style="color:var(--t1)">Les règles "test mode" expirent, comment faire ?</b><br>
+    Firebase envoie un email quand les règles arrivent à expiration (30 jours). Retourne dans Realtime Database → Rules et remets .read et .write à true, puis "Publier".<br><br>
+    <b style="color:var(--t1)">Le chauffeur peut-il voir mes bénéfices ?</b><br>
+    Non! En mode chauffeur, les bénéfices, marges et rapports financiers sont cachés. Il ne voit que les trajets, le GPS et peut ajouter des dépenses.<br><br>
+    <b style="color:var(--t1)">Comment je sais si ça marche ?</b><br>
+    Le badge en haut à droite affiche <b style="color:var(--grn)">☁️ Cloud connecté</b>. Sur le tableau de bord, le panneau "📡 Suivi GPS en direct" montre la position avec un indicateur 🟢 vert.
+  </div></div>`;
+}
+
+// ========== RAPPORT ==========
+let rapPeriod='mois';
+function renderRapport(){
+  const now=new Date();
+  const filter=(items,df)=>items.filter(i=>{const d=new Date(i[df]);if(rapPeriod==='mois')return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();if(rapPeriod==='trim'){const q=Math.floor(now.getMonth()/3),iq=Math.floor(d.getMonth()/3);return iq===q&&d.getFullYear()===now.getFullYear()};if(rapPeriod==='an')return d.getFullYear()===now.getFullYear();return true});
+  const tj=filter(D.trajets,'date'),dp=filter(D.depenses,'date');
+  const rev=tj.reduce((s,t)=>s+t.montant,0),dep=dp.reduce((s,d)=>s+d.montant,0),prof=rev-dep,marge=rev>0?Math.round(prof/rev*100):0;
+  const cats={};dp.forEach(d=>{if(!cats[d.categorie])cats[d.categorie]=0;cats[d.categorie]+=d.montant});
+  let catHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>{const p=dep>0?Math.round(v/dep*100):0;return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:160px;font-size:12px;font-weight:600">${depCatLabel(c)}</span><div style="flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:${p}%;background:var(--acc);border-radius:3px"></div></div><span style="width:70px;text-align:right;font-size:12px;font-weight:600">${fN(v)}</span><span style="width:30px;text-align:right;font-size:10px;color:var(--t3)">${p}%</span></div>`}).join('')||'<p style="color:var(--t3)">Aucune dépense</p>';
+  const routes={};tj.forEach(t=>{const k=t.depart+' → '+t.arrivee;if(!routes[k])routes[k]={n:0,t:0};routes[k].n++;routes[k].t+=t.montant});
+  let routeHTML=Object.entries(routes).sort((a,b)=>b[1].n-a[1].n).map(([r,d])=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:var(--bg);border-radius:var(--rs)"><span style="font-size:16px">🗺️</span><div style="flex:1"><div style="font-size:13px;font-weight:600">${r}</div><div style="font-size:10px;color:var(--t3)">${d.n} trajet(s) — ${fmt(d.t)}</div></div><span class="bdg bdg-o">${d.n}x</span></div>`).join('')||'<p style="color:var(--t3)">Aucun trajet</p>';
+
+  return `<div class="tb"><button class="tbtn ${rapPeriod==='mois'?'active':''}" onclick="rapPeriod='mois';renderPage('rapport')">Mois</button><button class="tbtn ${rapPeriod==='trim'?'active':''}" onclick="rapPeriod='trim';renderPage('rapport')">Trimestre</button><button class="tbtn ${rapPeriod==='an'?'active':''}" onclick="rapPeriod='an';renderPage('rapport')">Année</button><button class="tbtn ${rapPeriod==='tout'?'active':''}" onclick="rapPeriod='tout';renderPage('rapport')">Tout</button></div>
+  <div class="sg"><div class="sc"><div class="sc-ic g">📥</div><div class="sc-lb">Revenus</div><div class="sc-vl" style="color:var(--grn)">${fmt(rev)}</div></div><div class="sc"><div class="sc-ic" style="background:var(--redB)">📤</div><div class="sc-lb">Dépenses</div><div class="sc-vl" style="color:var(--red)">${fmt(dep)}</div></div><div class="sc"><div class="sc-ic o">💎</div><div class="sc-lb">Bénéfice</div><div class="sc-vl" style="color:var(--acc)">${fmt(prof)}</div></div><div class="sc"><div class="sc-ic b">📊</div><div class="sc-lb">Marge</div><div class="sc-vl">${marge}%</div></div></div>
+  <div class="card"><div class="card-h"><span class="card-t">📊 Dépenses par catégorie</span></div><div class="card-b" style="padding:20px">${catHTML}</div></div>
+  <div class="card"><div class="card-h"><span class="card-t">🗺️ Trajets fréquents</span></div><div class="card-b" style="padding:20px">${routeHTML}</div></div>`;
+}
+
+// ========== GPS COMPTEUR ==========
+let gps={active:false,paused:false,wid:null,start:null,pauseT:null,pausedMs:0,last:null,dist:0,max:0,spd:0,pts:[],timer:null};
+
+function renderCompteur(){
+  const restored=gpsAutoRestore();
+  const hasRestore=!gps.active&&restored;
+  let gpsRows=(D.gpsTrips||[]).map(t=>`<tr><td>${t.date} <span style="color:var(--t3);font-size:10px">${t.timestamp||''}</span></td><td style="font-weight:700;color:var(--acc)">${t.distance} km</td><td>${fmtDur(t.durationSec)}</td><td>${t.avgSpeed} km/h</td><td style="color:${t.maxSpeed>80?'var(--red)':'var(--grn)'}">${t.maxSpeed} km/h</td><td>${t.depart?t.depart+'→'+(t.arrivee||'?'):'—'}</td><td><div class="ab"><button class="abtn" onclick="gpsToTrajet('${t.id}')">🛣️</button><button class="abtn del" onclick="delGps('${t.id}')">🗑</button></div></td></tr>`).join('');
+  return `<div class="gps-display anim d1">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-size:12px;font-weight:600"><span class="gps-dot ${gps.active?(gps.paused?'off':'on'):'off'}" id="gps-dot"></span><span id="gps-stat" style="color:${gps.active?'var(--grn)':'var(--t3)'}">${gps.active?(gps.paused?'En pause':'GPS actif'):'GPS inactif'}</span></div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px"><span class="gps-offline-badge">📡 100% Offline — Pas besoin d'internet</span></div>
+    <div class="gps-ring"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="10"/><circle cx="100" cy="100" r="88" fill="none" stroke="var(--acc)" stroke-width="10" stroke-dasharray="553" stroke-dashoffset="553" stroke-linecap="round" id="spd-arc"/></svg><div class="inner"><div class="gps-spd" id="gps-spd">0</div><div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:2px">km/h</div></div></div>
+    <div class="gps-km" id="gps-dist">${gps.active?(gps.dist/1000).toFixed(2):'0.00'}</div>
+    <div style="font-size:12px;color:var(--t2);margin:4px 0 16px">kilomètres parcourus</div>
+    <div class="gps-meta">
+      <div class="gps-mi"><div class="v" style="color:var(--grn)" id="gps-dur">00:00:00</div><div class="l">Durée</div></div>
+      <div class="gps-mi"><div class="v" style="color:var(--blu)" id="gps-avg">0</div><div class="l">Moy km/h</div></div>
+      <div class="gps-mi"><div class="v" style="color:var(--acc)" id="gps-max">${gps.active?Math.round(gps.max):'0'}</div><div class="l">Max km/h</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <div class="fg" style="margin:0"><label class="fl" style="text-align:center;font-size:9px">Ville départ</label><select class="fs" id="gps-depart" style="font-size:11px;padding:6px 8px"><option value="">—</option>${villeOpts()}</select></div>
+      <div class="fg" style="margin:0"><label class="fl" style="text-align:center;font-size:9px">Ville arrivée</label><select class="fs" id="gps-arrivee" style="font-size:11px;padding:6px 8px"><option value="">—</option>${villeOpts()}</select></div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:8px;font-family:monospace" id="gps-coords">— Coordonnées GPS —</div>
+    <div style="font-size:9px;color:var(--t3);margin-top:4px" id="gps-autosave-status">💾 Sauvegarde auto activée (toutes les 10s)</div>
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap" id="gps-ctrl">
+      ${hasRestore?`<button class="gbtn gbtn-go" onclick="gpsRestore()">♻️ Restaurer parcours (${(restored.dist/1000).toFixed(1)} km)</button>`:''}
+      ${gps.active?`<button class="gbtn gbtn-pause" onclick="gpsPause()">⏸ Pause</button><button class="gbtn gbtn-stop" onclick="gpsStop()">⏹ Arrêter & Sauvegarder</button>`:`<button class="gbtn gbtn-go" onclick="gpsStart()">📡 Démarrer le compteur</button>`}
+    </div>
+  </div>
+  <div class="card anim d2"><div class="card-h"><span class="card-t">📍 Historique GPS (${D.gpsTrips.length})</span></div><div class="card-b"><table><thead><tr><th>Date</th><th>Distance</th><th>Durée</th><th>Moy</th><th>Max</th><th>Trajet</th><th>Act.</th></tr></thead><tbody>${gpsRows||'<tr><td colspan="7"><div class="empty"><div class="eic">📡</div><p>Aucun parcours GPS</p></div></td></tr>'}</tbody></table></div></div>
+  <div class="card anim d3"><div class="card-h"><span class="card-t">ℹ️ Compteur 100% Autonome</span></div><div class="card-b" style="padding:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;font-size:12px;color:var(--t2)">
+      <div><span style="font-size:24px">📡</span><div style="font-weight:700;margin:4px 0">GPS Offline</div>Utilise le GPS matériel de votre téléphone. <b>Pas besoin d'internet</b> — fonctionne en brousse, en forêt, partout.</div>
+      <div><span style="font-size:24px">💾</span><div style="font-weight:700;margin:4px 0">Sauvegarde auto</div>Le parcours est sauvegardé toutes les 10 secondes. Si l'application se ferme, <b>restaurez le parcours</b> au redémarrage.</div>
+      <div><span style="font-size:24px">🔄</span><div style="font-weight:700;margin:4px 0">Synchro auto</div>À l'arrêt, le km est <b>automatiquement enregistré</b> et synchronisé avec les trajets, le compteur camion et les rapports.</div>
+    </div>
+  </div></div>`;
+}
+
+function initCompteurUI(){if(gps.active)gps.timer=setInterval(gpsUpdateDur,1000)}
+
+function gpsStart(){
+  if(!navigator.geolocation)return alert('GPS non supporté');
+  gps={active:true,paused:false,wid:null,start:Date.now(),pauseT:null,pausedMs:0,last:null,dist:0,max:0,spd:0,pts:[],timer:null,autoSaveTimer:null};
+  gps.wid=navigator.geolocation.watchPosition(gpsPos,gpsErr,{enableHighAccuracy:true,maximumAge:3000,timeout:15000});
+  gps.timer=setInterval(gpsUpdateDur,1000);
+  // Autosave every 10 seconds for offline resilience
+  gps.autoSaveTimer=setInterval(gpsAutoSave,10000);
+  document.getElementById('gps-dot').className='gps-dot on';
+  document.getElementById('gps-stat').textContent='Recherche GPS...';
+  document.getElementById('gps-stat').style.color='var(--acc)';
+  document.getElementById('gps-ctrl').innerHTML='<button class="gbtn gbtn-pause" onclick="gpsPause()">⏸ Pause</button><button class="gbtn gbtn-stop" onclick="gpsStop()">⏹ Arrêter & Sauvegarder</button>';
+  showSync('Compteur GPS démarré (mode offline)');
+}
+
+function gpsRestore(){
+  const data=gpsAutoRestore();
+  if(!data)return alert('Aucune donnée à restaurer');
+  gps={active:true,paused:false,wid:null,start:data.start,pauseT:null,pausedMs:data.pausedMs||0,last:data.lastLat?{lat:data.lastLat,lng:data.lastLng,time:data.lastTime}:null,dist:data.dist||0,max:data.max||0,spd:0,pts:data.pts||[],timer:null,autoSaveTimer:null};
+  gps.wid=navigator.geolocation.watchPosition(gpsPos,gpsErr,{enableHighAccuracy:true,maximumAge:3000,timeout:15000});
+  gps.timer=setInterval(gpsUpdateDur,1000);
+  gps.autoSaveTimer=setInterval(gpsAutoSave,10000);
+  renderPage('compteur');
+  showSync(`Parcours restauré: ${(data.dist/1000).toFixed(2)} km`);
+}
+
+function gpsPause(){
+  if(!gps.active)return;
+  if(gps.paused){gps.pausedMs+=(Date.now()-gps.pauseT);gps.paused=false;gps.pauseT=null;gps.last=null;document.getElementById('gps-dot').className='gps-dot on';document.getElementById('gps-stat').textContent='GPS actif';document.getElementById('gps-ctrl').innerHTML='<button class="gbtn gbtn-pause" onclick="gpsPause()">⏸ Pause</button><button class="gbtn gbtn-stop" onclick="gpsStop()">⏹ Arrêter</button>'}
+  else{gps.paused=true;gps.pauseT=Date.now();document.getElementById('gps-dot').className='gps-dot off';document.getElementById('gps-stat').textContent='En pause';document.getElementById('gps-ctrl').innerHTML='<button class="gbtn gbtn-go" onclick="gpsPause()">▶ Reprendre</button><button class="gbtn gbtn-stop" onclick="gpsStop()">⏹ Arrêter</button>'}
+}
+
+function gpsStop(){
+  if(!gps.active)return;
+  if(gps.wid!==null)navigator.geolocation.clearWatch(gps.wid);
+  if(gps.timer)clearInterval(gps.timer);
+  if(gps.autoSaveTimer)clearInterval(gps.autoSaveTimer);
+  gpsClearAutoSave();
+  let pm=gps.pausedMs;if(gps.paused&&gps.pauseT)pm+=(Date.now()-gps.pauseT);
+  const el=Math.floor((Date.now()-gps.start-pm)/1000);
+  const dk=gps.dist/1000;
+  const avg=el>0?Math.round((dk/(el/3600))*10)/10:0;
+  // Get selected cities
+  const depEl=document.getElementById('gps-depart');
+  const arrEl=document.getElementById('gps-arrivee');
+  const depart=depEl?depEl.value:'';
+  const arrivee=arrEl?arrEl.value:'';
+
+  if(dk>0.01){
+    const trip={id:uid(),date:td(),timestamp:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),distance:Math.round(dk*100)/100,durationSec:el,avgSpeed:avg,maxSpeed:Math.round(gps.max),points:gps.pts.length,depart:depart,arrivee:arrivee};
+    D.gpsTrips.unshift(trip);
+
+    // Auto-update camion km
+    D.camion.km=(D.camion.km||0)+Math.round(dk);
+
+    syncAll('Compteur GPS');
+    showSync(`${dk.toFixed(2)} km enregistrés — Camion: ${fN(D.camion.km)} km total`);
+  }
+  gps.active=false;gps.paused=false;
+  D.liveGPS={active:false,lat:0,lng:0,speed:0,dist:0,ts:Date.now()};
+  pushLiveGPS(D.liveGPS);
+  renderPage('compteur');
+}
+
+function gpsPos(pos){
+  if(gps.paused)return;
+  const lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy,spd=pos.coords.speed;
+  if(document.getElementById('gps-coords'))document.getElementById('gps-coords').textContent=`${lat.toFixed(6)}°, ${lng.toFixed(6)}° — Précision: ${Math.round(acc)}m`;
+  if(document.getElementById('gps-stat')){document.getElementById('gps-stat').textContent=`GPS actif — ${Math.round(acc)}m`;document.getElementById('gps-stat').style.color='var(--grn)'}
+  let skmh=0;if(spd!==null&&spd>=0)skmh=spd*3.6;
+  if(gps.last&&acc<50){const d=haversine(gps.last.lat,gps.last.lng,lat,lng);if(d>3&&d<500){gps.dist+=d;if(spd===null||spd<0){const td2=(Date.now()-gps.last.time)/1000;if(td2>0)skmh=(d/1000)/(td2/3600)}}}
+  skmh=Math.max(0,Math.min(skmh,150));gps.spd=skmh;if(skmh>gps.max){gps.max=skmh;if(document.getElementById('gps-max'))document.getElementById('gps-max').textContent=Math.round(skmh)}
+  gps.last={lat,lng,time:Date.now()};gps.pts.push({lat,lng,t:Date.now()});
+  if(document.getElementById('gps-spd'))document.getElementById('gps-spd').textContent=Math.round(skmh);
+  if(document.getElementById('gps-dist'))document.getElementById('gps-dist').textContent=(gps.dist/1000).toFixed(2);
+  const circ=2*Math.PI*88,pct=Math.min(Math.round(skmh)/120,1),off=circ-(pct*circ);
+  const arc=document.getElementById('spd-arc');if(arc){arc.style.strokeDashoffset=off;arc.style.stroke=skmh<30?'var(--grn)':skmh<60?'var(--acc)':skmh<90?'#FF8C00':'var(--red)'}
+  let pm=gps.pausedMs;const els=(Date.now()-gps.start-pm)/1000;
+  if(els>0&&gps.dist>0&&document.getElementById('gps-avg'))document.getElementById('gps-avg').textContent=Math.round((gps.dist/1000)/(els/3600));
+
+  // Push live position to cloud for remote tracking (France)
+  D.liveGPS={active:true,lat,lng,speed:Math.round(skmh),dist:gps.dist,ts:Date.now()};
+  pushLiveGPS(D.liveGPS);
+}
+
+function gpsErr(e){if(e.code===1){alert('⛔ Accès GPS refusé');gpsStop()}}
+function gpsUpdateDur(){if(!gps.active)return;let pm=gps.pausedMs;if(gps.paused&&gps.pauseT)pm+=(Date.now()-gps.pauseT);const el=Math.floor((Date.now()-gps.start-pm)/1000);const h=Math.floor(el/3600),m=Math.floor((el%3600)/60),s=el%60;if(document.getElementById('gps-dur'))document.getElementById('gps-dur').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function haversine(a1,o1,a2,o2){const R=6371000,dL=(a2-a1)*Math.PI/180,dO=(o2-o1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function delGps(id){if(!confirm('Supprimer?'))return;D.gpsTrips=D.gpsTrips.filter(t=>t.id!==id);syncAll();renderPage('compteur')}
+function gpsToTrajet(id){const t=D.gpsTrips.find(x=>x.id===id);if(!t)return;closeM();goTo('trajets');setTimeout(()=>modalTrajet(t.distance),300)}
+
+// ========== DELETE GENERIC (ADMIN ONLY) ==========
+function delItem(col,id){
+  if(!canDelete())return showSync('🔒 Suppression réservée à l\'administrateur');
+  if(!confirm('Supprimer?'))return;D[col]=D[col].filter(i=>i.id!==id);syncAll();renderPage(curPage);
+}
+
+// ========== INIT ==========
+document.getElementById('curDate').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// Check for existing session
+const savedRole=loadSession();
+if(savedRole){
+  currentRole=savedRole;
+  enterApp();
+}else{
+  // Show login screen
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.querySelector('.main').style.display='none';
+  document.getElementById('login-pwd').focus();
+}
+
+// Auto-connect Firebase if config saved
+const _fbCfg=loadFirebaseConfig();
+if(_fbCfg&&_fbCfg.apiKey){
+  setTimeout(()=>initFirebase(_fbCfg),800);
+}
+</script>
+</body>
+</html>
